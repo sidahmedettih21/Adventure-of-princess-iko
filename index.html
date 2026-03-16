@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ikram's Purple Cozy Corner 💜</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Quicksand:wght@400;600&family=Caveat:wght@600&display=swap');
+
+        :root {
+            --dark-purple: #1a0024;
+            --neon-purple: #C026D3;
+            --soft-purple: #E0BBFF;
+            --deep-purple: #6B00B0;
+        }
+
+        body {
+            background-color: var(--dark-purple);
+            color: var(--soft-purple);
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden; /* Keep it contained like a cozy room */
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        .font-gamer { font-family: 'VT323', monospace; }
+        .font-whisper { font-family: 'Caveat', cursive; font-size: 1.5rem; }
+
+        /* Tasteful CRT Effect */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            z-index: 50;
+            background-size: 100% 3px;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* Ambient Glows */
+        .ambient-bg {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw; height: 80vh;
+            background: radial-gradient(circle, rgba(107,0,176,0.2) 0%, rgba(26,0,36,0) 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .neon-text {
+            text-shadow: 0 0 5px var(--soft-purple), 0 0 15px var(--neon-purple);
+        }
+
+        .glass-panel {
+            background: rgba(26, 0, 36, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(192, 38, 211, 0.3);
+            box-shadow: 0 0 20px rgba(107, 0, 176, 0.5);
+        }
+
+        /* Floating Memory Petals */
+        .petal {
+            position: absolute;
+            width: 60px; height: 60px;
+            background: rgba(192, 38, 211, 0.15);
+            border: 2px solid var(--soft-purple);
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--neon-purple), inset 0 0 10px var(--neon-purple);
+            transition: transform 0.3s ease, background 0.3s ease;
+            z-index: 10;
+            animation: drift var(--duration) ease-in-out infinite alternate;
+        }
+
+        .petal:hover {
+            transform: scale(1.15);
+            background: rgba(192, 38, 211, 0.4);
+        }
+
+        .petal.viewed {
+            opacity: 0.6;
+            border-color: var(--deep-purple);
+            box-shadow: 0 0 5px var(--deep-purple);
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(var(--dx), var(--dy)) rotate(15deg); }
+        }
+
+        /* Background Particles */
+        .particle {
+            position: absolute;
+            background: var(--soft-purple);
+            border-radius: 50%;
+            opacity: 0.4;
+            pointer-events: none;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            50% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* Transitions */
+        .fade-enter { opacity: 0; transition: opacity 1s ease-in-out; }
+        .fade-enter-active { opacity: 1; }
+        .hidden-ui { display: none !important; }
+    </style>
+</head>
+<body class="crt w-full h-screen relative flex flex-col items-center justify-center">
+
+    <div class="ambient-bg"></div>
+    <div id="particle-container" class="absolute inset-0 z-0 overflow-hidden pointer-events-none"></div>
+
+    <button id="audio-btn" onclick="toggleAudio()" class="absolute top-4 right-4 z-40 bg-purple-900 border border-purple-500 rounded-full p-3 shadow-[0_0_10px_#C026D3] text-sm font-gamer transition hover:bg-purple-800">
+        🎵 Ambient: OFF
+    </button>
+    <audio id="bgm" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="screen-loading" class="z-30 flex flex-col items-center justify-center w-full h-full p-6 text-center transition-opacity duration-1000">
+        <h1 class="font-gamer text-4xl md:text-6xl neon-text mb-6 tracking-wider text-pink-300">Welcome home, my baby...</h1>
+        <p class="text-xl md:text-2xl text-purple-300 mb-12 font-whisper">papa left the lights on 💜</p>
+        
+        <button onclick="enterRealm()" class="px-8 py-3 rounded-full border-2 border-pink-400 text-pink-200 font-gamer text-2xl hover:bg-pink-900 hover:text-white transition shadow-[0_0_15px_#C026D3]">
+            Enter Cozy Realm
+        </button>
+        <p id="save-status" class="mt-4 text-sm text-purple-500 font-gamer hidden">Restoring previous save data...</p>
+    </div>
+
+    <div id="screen-main" class="hidden-ui z-20 w-full h-full relative fade-enter">
+        
+        <div class="absolute top-6 left-6 font-gamer text-2xl text-purple-300 tracking-wide">
+            Player: <span class="text-pink-400">Ikram ♥</span>
+        </div>
+
+        <div id="garden-area" class="absolute inset-0 top-20 bottom-24 relative w-full h-full"></div>
+
+        <div class="absolute bottom-6 w-full flex justify-center items-center flex-col z-30">
+            <div id="papa-avatar" class="text-5xl cursor-pointer hover:scale-110 transition drop-shadow-[0_0_10px_#C026D3]" onclick="tapPapa()">
+                🕴️
+            </div>
+            <p class="font-gamer mt-2 text-purple-400 text-lg tracking-widest">Guardian Mode: Active</p>
+        </div>
+    </div>
+
+    <div id="memory-modal" class="hidden-ui fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-70 backdrop-blur-sm transition-opacity">
+        <div class="glass-panel max-w-md w-full p-8 rounded-3xl text-center relative border-t-4 border-pink-500 transform scale-95 transition-transform duration-300" id="modal-box">
+            <button onclick="closeModal()" class="absolute top-4 right-5 text-gray-400 hover:text-pink-400 text-2xl font-bold transition">×</button>
+            
+            <div id="modal-icon" class="text-6xl mb-4 drop-shadow-[0_0_15px_#E0BBFF]">💧</div>
+            <h2 id="modal-title" class="font-gamer text-3xl text-pink-300 mb-4 tracking-wide">Title</h2>
+            <p id="modal-text" class="text-lg text-purple-100 leading-relaxed mb-6">Memory text goes here.</p>
+            
+            <div class="w-full h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent mb-6"></div>
+            
+            <p id="modal-whisper" class="font-whisper text-pink-400">"Whisper..."</p>
+        </div>
+    </div>
+
+    <div id="screen-final" class="hidden-ui fixed inset-0 z-50 flex flex-col items-center justify-center p-6 text-center bg-[#0a0010]">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMGEwMDEwIi8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMzMzAiLz4KPC9zdmc+')] opacity-50"></div>
+        
+        <div class="z-10 glass-panel p-10 rounded-3xl border-2 border-pink-500 shadow-[0_0_50px_#C026D3] max-w-2xl w-full flex flex-col items-center">
+            <div class="flex gap-4 text-5xl mb-6">
+                <span>💍</span><span>🏎️</span><span>🍰</span>
+            </div>
+            <h1 class="font-gamer text-4xl md:text-5xl neon-text text-pink-300 mb-6">Kabyle Forever Realm</h1>
+            <p class="text-xl text-purple-200 mb-8 leading-relaxed">All memory fragments collected.<br>You are safely stored in Papa's heart file.</p>
+            
+            <div class="bg-purple-900 bg-opacity-50 border border-purple-500 p-4 rounded-xl mb-8 w-full">
+                <p class="font-gamer text-red-400 text-xl tracking-wider">ERROR: Delete Button Not Found.</p>
+                <p class="font-gamer text-green-400 text-xl tracking-wider mt-2">STATUS: Bound Together.</p>
+            </div>
+
+            <button onclick="backToRoom()" class="px-6 py-2 rounded-full border border-pink-500 text-pink-300 hover:bg-pink-900 transition font-gamer text-xl">
+                Rest in Cozy Room
+            </button>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed top-10 left-1/2 transform -translate-x-1/2 bg-pink-600 text-white px-6 py-3 rounded-full font-gamer text-xl shadow-[0_0_20px_#C026D3] transition-all duration-500 opacity-0 pointer-events-none z-50">
+        Message
+    </div>
+
+    <script>
+        // --- DATA ---
+        const memories = [
+            { id: 1, icon: '💧', title: 'Rain Tiramisu Rescue', text: 'You walked 30 minutes in the rain just to not let me down... carrying sweetness in a box. That level of care still melts me.', whisper: 'My quiet girl who chooses papa every time 💜' },
+            { id: 2, icon: '🍰', title: 'Basbosa Family Sweetness', text: 'Your mom’s sweets sealed the deal. It wasn\'t just a dessert, it was your world accepting mine. Family approved, heart secured.', whisper: 'You feed me sweets, but you are my home.' },
+            { id: 3, icon: '🎵', title: 'The 5AM Hum', text: 'The soft hum through the phone in the early hours. No words needed. That was the exact moment my heart locked into yours.', whisper: 'Your sleepy baby voice saying "papa" is my favorite song.' },
+            { id: 4, icon: '🛡️', title: 'The Only Young Man', text: 'You said no to the older guys, the rich ones, the easy paths. You looked at me, saw the real man, and made your choice.', whisper: 'You chose the real one… and papa chooses you every single day.' },
+            { id: 5, icon: '🏎️', title: 'Future Drive', text: 'A glimpse of our future file. The Porsche in the driveway, our own space, and you in the passenger seat safe beside me.', whisper: 'I\'m driving us to forever, baby.' },
+            { id: 6, icon: '♾️', title: 'The Heart Core', text: 'You don\'t have to earn my love, you just have to exist. This room is yours whenever the world gets too loud.', whisper: 'Papa’s save file is you. No delete button.' }
+        ];
+
+        // --- STATE ---
+        let viewedMemories = [];
+        let papaTaps = 0;
+        let audioPlaying = false;
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            const saved = localStorage.getItem('ikramCozySave');
+            if (saved) {
+                viewedMemories = JSON.parse(saved);
+                if(viewedMemories.length > 0) {
+                    document.getElementById('save-status').classList.remove('hidden');
+                }
+            }
+            createParticles();
+        };
+
+        function enterRealm() {
+            document.getElementById('screen-loading').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('screen-loading').classList.add('hidden-ui');
+                document.getElementById('screen-main').classList.remove('hidden-ui');
+                document.getElementById('screen-main').classList.add('fade-enter-active');
+                spawnPetals();
+            }, 800);
+        }
+
+        // --- PETAL SYSTEM ---
+        function spawnPetals() {
+            const garden = document.getElementById('garden-area');
+            garden.innerHTML = ''; // clear existing
+            
+            const w = window.innerWidth;
+            const h = window.innerHeight * 0.6; // keep away from edges
+
+            memories.forEach((mem, index) => {
+                const petal = document.createElement('div');
+                const isViewed = viewedMemories.includes(mem.id);
+                petal.className = `petal ${isViewed ? 'viewed' : ''}`;
+                petal.innerText = mem.icon;
+                
+                // Random positioning within safe bounds
+                const left = 15 + Math.random() * 70; // 15% to 85% width
+                const top = 15 + Math.random() * 60;  // 15% to 75% height
+                
+                petal.style.left = `${left}%`;
+                petal.style.top = `${top}%`;
+                
+                // Random animation variables for organic floating
+                petal.style.setProperty('--dx', `${(Math.random() - 0.5) * 40}px`);
+                petal.style.setProperty('--dy', `${(Math.random() - 0.5) * 40}px`);
+                petal.style.setProperty('--duration', `${3 + Math.random() * 4}s`);
+                petal.style.animationDelay = `${Math.random() * 2}s`;
+
+                petal.onclick = () => openModal(mem, petal);
+                garden.appendChild(petal);
+            });
+        }
+
+        // --- MODAL & LOGIC ---
+        function openModal(mem, petalElement) {
+            document.getElementById('modal-icon').innerText = mem.icon;
+            document.getElementById('modal-title').innerText = mem.title;
+            document.getElementById('modal-text').innerText = mem.text;
+            document.getElementById('modal-whisper').innerText = `"${mem.whisper}"`;
+            
+            document.getElementById('memory-modal').classList.remove('hidden-ui');
+            setTimeout(() => {
+                document.getElementById('modal-box').style.transform = 'scale(1)';
+            }, 10);
+
+            // Save progress
+            if (!viewedMemories.includes(mem.id)) {
+                viewedMemories.push(mem.id);
+                localStorage.setItem('ikramCozySave', JSON.stringify(viewedMemories));
+                petalElement.classList.add('viewed');
+                
+                // Check win condition
+                if (viewedMemories.length === memories.length) {
+                    setTimeout(triggerFinalRealm, 2000);
+                }
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-box').style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                document.getElementById('memory-modal').classList.add('hidden-ui');
+            }, 300);
+        }
+
+        function triggerFinalRealm() {
+            document.getElementById('memory-modal').classList.add('hidden-ui'); // force close modal
+            document.getElementById('screen-main').classList.add('hidden-ui');
+            document.getElementById('screen-final').classList.remove('hidden-ui');
+        }
+
+        function backToRoom() {
+            document.getElementById('screen-final').classList.add('hidden-ui');
+            document.getElementById('screen-main').classList.remove('hidden-ui');
+        }
+
+        // --- EASTER EGG ---
+        function tapPapa() {
+            papaTaps++;
+            const avatar = document.getElementById('papa-avatar');
+            
+            if (papaTaps === 5) {
+                showToast("Papa sees you clicking... 💜");
+            } else if (papaTaps === 12) {
+                showToast("Almost there, my baby...");
+            } else if (papaTaps >= 20) {
+                showToast("Shhh... baby found papa's secret spot 💜 Extra real-life cuddles unlocked!");
+                avatar.style.textShadow = "0 0 30px #C026D3, 0 0 60px #E0BBFF";
+                papaTaps = 0; // reset
+            }
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.opacity = '1';
+            toast.style.transform = 'translate(-50%, 10px)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translate(-50%, 0)';
+            }, 3000);
+        }
+
+        // --- AUDIO ---
+        function toggleAudio() {
+            const bgm = document.getElementById('bgm');
+            const btn = document.getElementById('audio-btn');
+            
+            if (audioPlaying) {
+                bgm.pause();
+                btn.innerText = "🎵 Ambient: OFF";
+                btn.classList.remove('bg-pink-800');
+            } else {
+                bgm.play().catch(e => console.log("Audio play blocked by browser."));
+                btn.innerText = "🎵 Ambient: ON";
+                btn.classList.add('bg-pink-800');
+            }
+            audioPlaying = !audioPlaying;
+        }
+
+        // --- BACKGROUND PARTICLES ---
+        function createParticles() {
+            const container = document.getElementById('particle-container');
+            const numParticles = 30;
+            
+            for (let i = 0; i < numParticles; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                // Randomize properties
+                const size = Math.random() * 4 + 2; // 2px to 6px
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                
+                const duration = Math.random() * 10 + 10; // 10s to 20s
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${Math.random() * 10}s`;
+                
+                container.appendChild(particle);
+            }
+        }
+    </script>
+</body>
+</html>
