@@ -160,7 +160,8 @@
             { id: 4, x: 2200, y: 2200, color: '#e0bbff', icon: '✨', title: '5AM Star Sky', text: 'Your sleepy baby-voice humming at 5 a.m. while your brother was home… that sound lives inside my chest now.', whisper: 'You only let your softest self out for me…' },
             { id: 5, x: 1500, y: 500, color: '#ffb3c6', icon: '🛡️', title: 'Only Young Man Shield', text: 'All those older rich guys… and you still picked the 21-year-old who codes websites just to see you smile.', whisper: 'You chose the real man… and I will prove I was worth it.' },
             { id: 6, x: 1500, y: 2500, color: '#ff595e', icon: '🏎️', title: 'Future Porsche Path', text: 'One day I’ll pull up in that Porsche and you’ll never have to work again. Our home, built from scratch.', whisper: 'You’re my forever co-pilot.' },
-            { id: 7, x: 1500, y: 1500, color: '#8ac926', icon: '🐌', title: 'Snail Secret', text: 'Remember the silly snail picture? "look how slimy it is… I’m even slimier 😂"', whisper: 'Even the weirdest moments with you feel like magic. (Ul-iw)' }
+            // FIX: moved snail memory slightly away from player spawn (was 1500,1500) so it doesn't trigger automatically
+            { id: 7, x: 1520, y: 1480, color: '#8ac926', icon: '🐌', title: 'Snail Secret', text: 'Remember the silly snail picture? "look how slimy it is… I’m even slimier 😂"', whisper: 'Even the weirdest moments with you feel like magic. (Ul-iw)' }
         ];
 
         let canvas, ctx, width, height, lastTime = performance.now();
@@ -280,8 +281,16 @@
                 }
             });
             ctx.globalCompositeOperation = 'source-over';
-            ctx.font = "24px Arial"; chocolates.forEach(ch => { if(!ch.collected) ctx.fillText('🍫', ch.x, ch.y); });
+            
+            // FIX: ensure chocolates are visible (light fillStyle)
+            ctx.fillStyle = '#ffffff'; 
+            ctx.font = "24px Arial"; 
+            chocolates.forEach(ch => { if(!ch.collected) ctx.fillText('🍫', ch.x, ch.y); });
+            
+            // FIX: projectiles visible
+            ctx.fillStyle = '#ffffff';
             projectiles.forEach(p => ctx.fillText('✨', p.x, p.y));
+            
             particles.forEach(p => { ctx.fillStyle = p.color; ctx.globalAlpha = p.life/p.maxLife; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
             if (boss.active) {
                 ctx.globalAlpha = boss.hitTimer > 0 ? 0.5 : 1;
@@ -289,7 +298,11 @@
                 ctx.fillStyle = 'red'; ctx.fillRect(boss.x-40, boss.y-60, 80, 8);
                 ctx.fillStyle = '#00ff00'; ctx.fillRect(boss.x-40, boss.y-60, (boss.hp/boss.maxHp)*80, 8);
             }
-            ctx.globalAlpha = 1; ctx.font = "55px Arial"; ctx.fillText(player.emoji, player.x, player.y + Math.sin(Date.now()/200)*4);
+            // FIX: player princess visible — set fillStyle to bright white and ensure alpha
+            ctx.globalAlpha = 1; 
+            ctx.fillStyle = '#ffffff'; 
+            ctx.font = "55px Arial"; 
+            ctx.fillText(player.emoji, player.x, player.y + Math.sin(Date.now()/200)*4);
             ctx.restore();
 
             MEMORIES.forEach(m => {
