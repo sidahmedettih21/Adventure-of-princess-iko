@@ -15,7 +15,6 @@
             --deep-purple: #6B00B0;
         }
 
-        /* Prevent all scrolling, bouncing, and text-selection on mobile */
         * {
             box-sizing: border-box;
             user-select: none;
@@ -32,11 +31,8 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-        #gameCanvas {
-            display: block; width: 100%; height: 100%;
-        }
+        #gameCanvas { display: block; width: 100%; height: 100%; }
 
-        /* Subtle CRT / Scanline Layer */
         .crt::before {
             content: " "; display: block; position: fixed;
             top: 0; left: 0; bottom: 0; right: 0;
@@ -60,14 +56,12 @@
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
         .interactive { pointer-events: auto; }
 
-        /* Custom Joystick */
         #joystick-zone {
             position: absolute; bottom: 30px; left: 30px;
             width: 140px; height: 140px;
             background: rgba(224, 187, 255, 0.05);
             border-radius: 50%; border: 2px dashed rgba(192, 38, 211, 0.4);
             display: flex; justify-content: center; align-items: center; opacity: 0.8;
-            box-shadow: 0 0 20px rgba(192,38,211,0.2);
         }
         #joystick-knob {
             width: 50px; height: 50px;
@@ -76,33 +70,22 @@
             position: absolute; transition: transform 0.05s;
         }
 
-        /* Action Buttons */
         #shoot-btn {
             position: absolute; bottom: 40px; right: 40px;
             width: 90px; height: 90px;
             background: radial-gradient(circle, #ffb3c6, #C026D3);
-            border-radius: 50%; display: none; /* Hidden until wand unlocked */
+            border-radius: 50%; display: none;
             justify-content: center; align-items: center;
             font-size: 40px; box-shadow: 0 0 30px var(--neon-purple);
-            border: 3px solid white; active:scale-95; transition: transform 0.1s;
+            border: 3px solid white; transition: transform 0.1s;
         }
 
-        @media (min-width: 1024px) {
-            #joystick-zone { display: none; }
-            #desktop-hints { display: block !important; }
-        }
+        @media (min-width: 1024px) { #joystick-zone { display: none; } #desktop-hints { display: block !important; } }
 
-        /* Animations */
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 20px var(--neon-purple); }
-            100% { box-shadow: 0 0 50px var(--soft-purple), 0 0 80px var(--neon-purple); }
-        }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 20px var(--neon-purple); } 100% { box-shadow: 0 0 50px var(--soft-purple), 0 0 80px var(--neon-purple); } }
         .animate-pulse-glow { animation: pulseGlow 1.5s infinite alternate; }
         
-        @keyframes floatUpConfetti {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-        }
+        @keyframes floatUpConfetti { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
         
         .hide { display: none !important; }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
@@ -112,14 +95,12 @@
         @keyframes damage { 0% { background-color: rgba(255,0,0,0.5); } 100% { background-color: transparent; } }
     </style>
 </head>
-<body class="crt" id="body">
+<body class="crt">
 
     <div id="damage-overlay" class="absolute inset-0 z-10 pointer-events-none"></div>
-
     <canvas id="gameCanvas"></canvas>
 
     <div id="ui-layer">
-        
         <div class="absolute top-4 left-4 interactive flex flex-col gap-2">
             <div class="glass-panel text-pink-300 px-4 py-2 rounded-xl font-gamer text-2xl tracking-wide flex items-center justify-between min-w-[160px]">
                 <span>Memories:</span> <span id="ui-score" class="text-white">0/7</span>
@@ -130,596 +111,231 @@
         </div>
 
         <div class="absolute top-4 right-4 interactive">
-            <button onclick="toggleAudio()" id="audio-btn" class="glass-panel text-purple-200 px-4 py-3 rounded-full font-gamer text-xl hover:bg-purple-900 transition shadow-[0_0_15px_#C026D3]">
-                🎵 BGM: OFF
-            </button>
+            <button onclick="toggleAudio()" id="audio-btn" class="glass-panel text-purple-200 px-4 py-3 rounded-full font-gamer text-xl hover:bg-purple-900 transition">🎵 BGM: OFF</button>
         </div>
 
         <div id="desktop-hints" class="hidden absolute bottom-6 left-1/2 transform -translate-x-1/2 glass-panel px-6 py-3 rounded-full text-purple-300 font-gamer text-2xl tracking-wide">
-            WASD to Move | SPACE to Shoot | Follow the Edge Arrows 💜
+            WASD to Move | SPACE to Shoot 💜
         </div>
 
         <div class="absolute top-24 right-6 interactive">
-            <div id="papa-btn" class="w-14 h-14 glass-panel rounded-full flex items-center justify-center text-2xl cursor-pointer hover:scale-110 transition animate-pulse-glow" onclick="tapPapa()">
-                🕴️
-            </div>
+            <div id="papa-btn" class="w-14 h-14 glass-panel rounded-full flex items-center justify-center text-2xl cursor-pointer animate-pulse-glow" onclick="tapPapa()">🕴️</div>
         </div>
 
         <div id="joystick-zone" class="interactive"><div id="joystick-knob"></div></div>
         <div id="shoot-btn" class="interactive" onpointerdown="playerShoot()">🪄</div>
 
-        <div id="toast" class="absolute top-24 left-1/2 transform -translate-x-1/2 glass-panel text-pink-200 px-8 py-3 rounded-full font-gamer text-2xl opacity-0 transition-opacity duration-300 tracking-wider text-center max-w-[90%]">
-            Message
-        </div>
+        <div id="toast" class="absolute top-24 left-1/2 transform -translate-x-1/2 glass-panel text-pink-200 px-8 py-3 rounded-full font-gamer text-2xl opacity-0 transition-opacity duration-300 tracking-wider text-center">Message</div>
     </div>
 
     <div id="memory-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hide interactive">
-        <div class="glass-panel max-w-lg w-full p-8 rounded-3xl text-center relative border-t-4 border-pink-500 fade-in shadow-[0_0_50px_#C026D3]">
-            <div id="modal-icon" class="text-6xl mb-4 drop-shadow-[0_0_20px_#E0BBFF] animate-bounce">💧</div>
+        <div class="glass-panel max-w-lg w-full p-8 rounded-3xl text-center relative border-t-4 border-pink-500 fade-in">
+            <div id="modal-icon" class="text-6xl mb-4 animate-bounce">💧</div>
             <h2 id="modal-title" class="font-gamer text-4xl text-pink-300 mb-4 neon-text tracking-wide uppercase">Title</h2>
-            <p id="modal-text" class="text-xl text-purple-100 leading-relaxed mb-6 font-semibold">Memory text goes here.</p>
-            <div class="w-full h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent mb-6"></div>
-            <p id="modal-whisper" class="font-whisper text-3xl text-pink-400 mb-8 leading-snug">"Whisper..."</p>
-            <button onclick="closeModal()" class="px-8 py-4 rounded-full border-2 border-pink-500 bg-pink-900/50 text-pink-100 font-gamer text-3xl hover:bg-pink-800 transition animate-pulse-glow w-full">
-                Keep in my Heart (Ul-iw) 💜
-            </button>
+            <p id="modal-text" class="text-xl text-purple-100 leading-relaxed mb-6 font-semibold"></p>
+            <p id="modal-whisper" class="font-whisper text-3xl text-pink-400 mb-8"></p>
+            <button onclick="closeModal()" class="px-8 py-4 rounded-full border-2 border-pink-500 bg-pink-900/50 text-pink-100 font-gamer text-3xl animate-pulse-glow w-full">Keep in my Heart (Ul-iw) 💜</button>
         </div>
     </div>
 
     <div id="final-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 text-center bg-[#0a0010] hide interactive">
         <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
-        <div class="glass-panel p-8 md:p-12 rounded-3xl border-4 border-pink-500 shadow-[0_0_100px_#C026D3] max-w-2xl w-full flex flex-col items-center relative z-10 fade-in">
-            <div class="flex gap-4 md:gap-8 text-5xl md:text-7xl mb-6">
-                <span class="animate-bounce" style="animation-delay: 0s;">💍</span>
-                <span class="animate-bounce" style="animation-delay: 0.2s;">🏎️</span>
-                <span class="animate-bounce" style="animation-delay: 0.4s;">🍰</span>
-            </div>
+        <div class="glass-panel p-8 rounded-3xl border-4 border-pink-500 shadow-[0_0_100px_#C026D3] max-w-2xl w-full flex flex-col items-center relative z-10 fade-in">
             <h1 class="font-gamer text-4xl md:text-6xl neon-text text-pink-300 mb-6 uppercase tracking-widest">Kabyle Forever Realm</h1>
-            <p class="text-xl md:text-2xl text-purple-200 mb-6 leading-relaxed font-bold">All pieces of our story collected.<br>The Memoire Master is defeated.<br>You are safely stored in Papa's heart file forever.</p>
-            
-            <div class="bg-purple-900/60 border-2 border-purple-400 p-6 rounded-xl mb-8 w-full shadow-[inset_0_0_20px_#6B00B0]">
-                <p class="font-gamer text-pink-400 text-2xl md:text-3xl tracking-widest mb-2">CERTIFICATE OF PERMANENCE</p>
-                <p class="font-gamer text-red-400 text-xl md:text-2xl tracking-wider mb-1">ERROR: Delete Button Not Found.</p>
-                <p class="font-gamer text-green-400 text-xl md:text-2xl tracking-wider">STATUS: Bound Together For Life.</p>
-            </div>
-
-            <button onclick="continueExploring()" class="px-10 py-4 rounded-full border-2 border-pink-400 text-pink-200 hover:bg-pink-900 transition font-gamer text-3xl animate-pulse-glow">
-                Rest in Our Safe Space
+            <p class="text-xl md:text-2xl text-purple-200 mb-6 font-bold">The Memoire Master is defeated.<br>Restarting our safe space... (Ul-iw)</p>
+            <button onclick="restartGame()" class="px-10 py-4 rounded-full border-2 border-pink-400 text-pink-200 hover:bg-pink-900 transition font-gamer text-3xl animate-pulse-glow">
+                Rest in Our Safe Space (Play Again)
             </button>
         </div>
     </div>
 
-    <audio id="bgm" loop>
-        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgm" loop><source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg"></audio>
 
     <script>
-        // ==========================================
-        // GAME DATA & ENGINE CONFIG
-        // ==========================================
-        const MAP_SIZE = 3000; // Tighter map for better pacing
-        
+        const MAP_SIZE = 3000;
         const MEMORIES = [
-            { id: 1, x: 800, y: 800, color: '#4facfe', icon: '💧', title: 'Rain Garden', text: 'You walked 30 minutes in the rain just so I wouldn’t be disappointed… carrying that tiramisu like it was the most important thing in the world. In that moment I knew — you’re my safe place forever. (Axxam-iw)', whisper: 'My quiet Kabyle princess who chooses me even when it’s pouring… you are my spark in the darkness 💜' },
-            { id: 2, x: 2200, y: 800, color: '#d4a373', icon: '🍫', title: 'Chocolate Grove', text: 'Every time I see chocolate I remember how your eyes light up. You deserve the sweetest things in life, and I want to be the one who keeps giving them to you.', whisper: 'You melt me faster than any chocolate ever could, my baby.' },
-            { id: 3, x: 800, y: 2200, color: '#faedcd', icon: '🍰', title: 'Basbosa Kitchen', text: 'Your mom making basbosa and saying "send it to Sidahmed"… that was the day your whole family quietly chose me too. I still taste that sweetness every single day.', whisper: 'You feed my heart even when we’re apart. (Tayri-w)' },
-            { id: 4, x: 2200, y: 2200, color: '#e0bbff', icon: '✨', title: '5AM Star Sky', text: 'Your sleepy baby-voice humming at 5 a.m. while your brother was home… no words, just pure closeness. That sound lives inside my chest now.', whisper: 'You only let your softest self out for me… and I protect it with everything I have.' },
-            { id: 5, x: 1500, y: 500, color: '#ffb3c6', icon: '🛡️', title: 'Only Young Man Shield', text: 'All those older rich guys with flowers and Dubai money… and you still picked the 21-year-old who codes websites just to see you smile. You saw the real me.', whisper: 'You chose the real man… and I will spend my life proving I was worth it.' },
-            { id: 6, x: 1500, y: 2500, color: '#ff595e', icon: '🏎️', title: 'Future Porsche Path', text: 'One day I’ll pull up in that Porsche and you’ll never have to work again. We’ll build our zero-from-scratch home together, just like you dreamed.', whisper: 'You’re not just my girlfriend… you’re my forever co-pilot.' },
-            { id: 7, x: 1500, y: 1500, color: '#8ac926', icon: '🐌', title: 'Snail Secret', text: 'Remember the silly snail picture? You said "look how slimy it is… I’m even slimier 😂" — that random moment still makes me laugh and love you more. Our little inside jokes are everything.', whisper: 'Even the weirdest moments with you feel like magic. (Ul-iw)' }
+            { id: 1, x: 800, y: 800, color: '#4facfe', icon: '💧', title: 'Rain Garden', text: 'You walked 30 minutes in the rain just so I wouldn’t be disappointed… carrying that tiramisu like it was the most important thing in the world. (Axxam-iw)', whisper: 'My quiet Kabyle princess... you are my spark in the darkness 💜' },
+            { id: 2, x: 2200, y: 800, color: '#d4a373', icon: '🍫', title: 'Chocolate Grove', text: 'Every time I see chocolate I remember how your eyes light up. You deserve the sweetest things in life.', whisper: 'You melt me faster than any chocolate ever could, my baby.' },
+            { id: 3, x: 800, y: 2200, color: '#faedcd', icon: '🍰', title: 'Basbosa Kitchen', text: 'Your mom making basbosa and saying "send it to Sidahmed"… that was the day your whole family quietly chose me too.', whisper: 'You feed my heart even when we’re apart. (Tayri-w)' },
+            { id: 4, x: 2200, y: 2200, color: '#e0bbff', icon: '✨', title: '5AM Star Sky', text: 'Your sleepy baby-voice humming at 5 a.m. while your brother was home… that sound lives inside my chest now.', whisper: 'You only let your softest self out for me…' },
+            { id: 5, x: 1500, y: 500, color: '#ffb3c6', icon: '🛡️', title: 'Only Young Man Shield', text: 'All those older rich guys… and you still picked the 21-year-old who codes websites just to see you smile.', whisper: 'You chose the real man… and I will prove I was worth it.' },
+            { id: 6, x: 1500, y: 2500, color: '#ff595e', icon: '🏎️', title: 'Future Porsche Path', text: 'One day I’ll pull up in that Porsche and you’ll never have to work again. Our home, built from scratch.', whisper: 'You’re my forever co-pilot.' },
+            { id: 7, x: 1500, y: 1500, color: '#8ac926', icon: '🐌', title: 'Snail Secret', text: 'Remember the silly snail picture? "look how slimy it is… I’m even slimier 😂"', whisper: 'Even the weirdest moments with you feel like magic. (Ul-iw)' }
         ];
 
-        let canvas, ctx, width, height;
-        let lastTime = performance.now();
-        let isModalOpen = false;
-        let audioPlaying = false;
-        let papaTaps = 0;
-        let finalTriggered = false;
+        let canvas, ctx, width, height, lastTime = performance.now();
+        let isModalOpen = false, audioPlaying = false, papaTaps = 0, finalTriggered = false;
+        let unlockedMemories = [], chocolatesCollected = 0, hasWand = false, bossDefeated = false;
 
-        // --- Save State Variables ---
-        let unlockedMemories = [];
-        let chocolatesCollected = 0;
-        let hasWand = false;
-        let bossDefeated = false;
-
-        // --- Entities ---
         const player = { x: 1500, y: 1500, size: 40, speed: 300, emoji: '👸🏻', faceX: 0, faceY: 1, cooldown: 0 };
         const camera = { x: 0, y: 0 };
-        const chocolates = [];
-        const backgroundStars = [];
-        const particles = [];
-        const projectiles = [];
-        
-        const boss = {
-            active: false,
-            x: 0, y: 0, size: 80, emoji: '🎓',
-            hp: 10, maxHp: 10, speed: 180,
-            hitTimer: 0
-        };
-
-        // --- Input State ---
+        const chocolates = [], backgroundStars = [], particles = [], projectiles = [];
+        const boss = { active: false, x: 0, y: 0, size: 80, emoji: '🎓', hp: 10, maxHp: 10, speed: 180, hitTimer: 0 };
         const keys = { w: false, a: false, s: false, d: false, ' ': false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
         const joystick = { active: false, dx: 0, dy: 0 };
 
-        // ==========================================
-        // INITIALIZATION
-        // ==========================================
         window.onload = () => {
-            canvas = document.getElementById('gameCanvas');
-            ctx = canvas.getContext('2d', { alpha: false });
-            resize();
-            window.addEventListener('resize', resize);
-            
-            // Generate Stars & Chocolates
+            canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d', { alpha: false });
+            resize(); window.addEventListener('resize', resize);
             for(let i=0; i<400; i++) backgroundStars.push({ x: Math.random()*MAP_SIZE, y: Math.random()*MAP_SIZE, size: Math.random()*2+0.5, alpha: Math.random()*0.6+0.1 });
             for(let i=0; i<12; i++) chocolates.push({ x: 200 + Math.random()*(MAP_SIZE-400), y: 200 + Math.random()*(MAP_SIZE-400), collected: false });
-
-            loadGame();
             setupInputs();
-            
-            // First time logic
-            if(unlockedMemories.length === 0) {
-                setTimeout(() => showToast("Welcome home, my baby 💜 Explore your safe space."), 1000);
-            }
-            
             requestAnimationFrame(gameLoop);
+            showToast("Welcome home, my baby 💜");
         };
 
-        function resize() {
-            width = window.innerWidth; height = window.innerHeight;
-            canvas.width = width; canvas.height = height;
-        }
+        function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; }
 
-        // ==========================================
-        // INPUT HANDLING (Flawless UX)
-        // ==========================================
         function setupInputs() {
-            // Keyboard
-            window.addEventListener('keydown', (e) => {
-                if(keys.hasOwnProperty(e.key)) keys[e.key] = true;
-                if(e.key === ' ' && hasWand) playerShoot(); // PC Shoot
-            });
+            window.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; if(e.key === ' ' && hasWand) playerShoot(); });
             window.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
-            
-            // Mobile Joystick
             const zone = document.getElementById('joystick-zone');
             const knob = document.getElementById('joystick-knob');
             let rect, centerX, centerY;
-
-            function updateCenter() {
-                rect = zone.getBoundingClientRect();
-                centerX = rect.left + rect.width / 2;
-                centerY = rect.top + rect.height / 2;
-            }
-            updateCenter();
-            window.addEventListener('resize', updateCenter);
-
-            const handleTouch = (e) => {
-                e.preventDefault();
-                joystick.active = true;
-                const touch = e.targetTouches[0];
-                let dx = touch.clientX - centerX; let dy = touch.clientY - centerY;
-                const dist = Math.hypot(dx, dy); const maxDist = rect.width / 2;
-                if (dist > maxDist) { dx = (dx / dist) * maxDist; dy = (dy / dist) * maxDist; }
+            const updateC = () => { rect = zone.getBoundingClientRect(); centerX = rect.left + rect.width / 2; centerY = rect.top + rect.height / 2; };
+            updateC(); window.addEventListener('resize', updateC);
+            const move = (e) => {
+                e.preventDefault(); joystick.active = true; const t = e.targetTouches[0];
+                let dx = t.clientX - centerX, dy = t.clientY - centerY;
+                const dist = Math.hypot(dx, dy), max = rect.width / 2;
+                if (dist > max) { dx = (dx/dist)*max; dy = (dy/dist)*max; }
                 knob.style.transform = `translate(${dx}px, ${dy}px)`;
-                joystick.dx = dx / maxDist; joystick.dy = dy / maxDist;
+                joystick.dx = dx/max; joystick.dy = dy/max;
             };
-
-            const endTouch = (e) => {
-                e.preventDefault();
-                joystick.active = false; joystick.dx = 0; joystick.dy = 0;
-                knob.style.transform = `translate(0px, 0px)`;
-            };
-
-            zone.addEventListener('touchstart', handleTouch, {passive: false});
-            zone.addEventListener('touchmove', handleTouch, {passive: false});
-            zone.addEventListener('touchend', endTouch);
-            zone.addEventListener('touchcancel', endTouch);
+            zone.addEventListener('touchstart', move, {passive: false}); zone.addEventListener('touchmove', move, {passive: false});
+            zone.addEventListener('touchend', () => { joystick.active = false; knob.style.transform = `translate(0,0)`; });
         }
 
-        // ==========================================
-        // CORE GAME LOOP
-        // ==========================================
         function gameLoop(timestamp) {
-            let dt = (timestamp - lastTime) / 1000;
+            let dt = Math.min((timestamp - lastTime) / 1000, 0.1);
             lastTime = timestamp;
-            if (dt > 0.1) dt = 0.1; // Critical: Prevent physics glitch after modal unpauses
-
             if (!isModalOpen) update(dt);
             draw();
-
             requestAnimationFrame(gameLoop);
         }
 
         function update(dt) {
-            // 1. Player Movement
             let dx = 0, dy = 0;
-            if (keys.w || keys.ArrowUp) dy -= 1;
-            if (keys.s || keys.ArrowDown) dy += 1;
-            if (keys.a || keys.ArrowLeft) dx -= 1;
-            if (keys.d || keys.ArrowRight) dx += 1;
-
+            if (keys.w || keys.ArrowUp) dy -= 1; if (keys.s || keys.ArrowDown) dy += 1;
+            if (keys.a || keys.ArrowLeft) dx -= 1; if (keys.d || keys.ArrowRight) dx += 1;
             if (joystick.active) { dx = joystick.dx; dy = joystick.dy; }
-
-            if (dx !== 0 || dy !== 0) {
-                const len = Math.hypot(dx, dy);
-                dx /= len; dy /= len;
-                player.faceX = dx; player.faceY = dy; // Save facing direction for wand
-            }
-
-            player.x += dx * player.speed * dt;
-            player.y += dy * player.speed * dt;
-            player.x = Math.max(player.size, Math.min(MAP_SIZE - player.size, player.x));
-            player.y = Math.max(player.size, Math.min(MAP_SIZE - player.size, player.y));
-
-            // Camera follow
-            camera.x = player.x - width / 2;
-            camera.y = player.y - height / 2;
-
+            if (dx !== 0 || dy !== 0) { const len = Math.hypot(dx, dy); dx /= len; dy /= len; player.faceX = dx; player.faceY = dy; }
+            player.x += dx * player.speed * dt; player.y += dy * player.speed * dt;
+            player.x = Math.max(40, Math.min(MAP_SIZE - 40, player.x)); player.y = Math.max(40, Math.min(MAP_SIZE - 40, player.y));
+            camera.x = player.x - width / 2; camera.y = player.y - height / 2;
             if (player.cooldown > 0) player.cooldown -= dt;
 
-            // 2. Collisions - Memories (Radius increased from 80 to 140 for easy mobile UX)
             if (player.cooldown <= 0) {
-                for (let mem of MEMORIES) {
-                    if (!unlockedMemories.includes(mem.id)) {
-                        if (Math.hypot(player.x - mem.x, player.y - mem.y) < 140) {
-                            triggerMemory(mem);
-                            break;
-                        }
-                    }
+                MEMORIES.forEach(m => {
+                    if (!unlockedMemories.includes(m.id) && Math.hypot(player.x - m.x, player.y - m.y) < 140) triggerMemory(m);
+                });
+            }
+
+            chocolates.forEach(ch => {
+                if (!ch.collected && Math.hypot(player.x - ch.x, player.y - ch.y) < 50) {
+                    ch.collected = true; chocolatesCollected++;
+                    if (chocolatesCollected === 12) { hasWand = true; document.getElementById('shoot-btn').style.display = 'flex'; spawnBoss(); }
+                    else showToast("+ Sweetness 🍫");
+                    updateUI();
                 }
-            }
+            });
 
-            // 3. Collisions - Chocolates
-            for (let choc of chocolates) {
-                if (!choc.collected && Math.hypot(player.x - choc.x, player.y - choc.y) < 50) {
-                    choc.collected = true;
-                    chocolatesCollected++;
-                    for(let i=0; i<15; i++) spawnParticle(choc.x, choc.y, '#d4a373', 3);
-                    
-                    if (chocolatesCollected === 12 && !hasWand) {
-                        hasWand = true;
-                        document.getElementById('shoot-btn').style.display = 'flex';
-                        showToast("All chocolates found! 🪄 Magic Wand Unlocked! Uh oh...");
-                        setTimeout(spawnBoss, 3000);
-                    } else {
-                        showToast("+ Sweetness 🍫");
-                    }
-                    updateUI(); saveGame();
-                }
-            }
-
-            // 4. Projectiles Update
-            for (let i = projectiles.length - 1; i >= 0; i--) {
-                let p = projectiles[i];
-                p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
-                spawnParticle(p.x, p.y, '#C026D3', 0.5); // Trail
-                if (p.life <= 0) projectiles.splice(i, 1);
-            }
-
-            // 5. Boss Logic (Memoire Master 2)
             if (boss.active) {
                 if (boss.hitTimer > 0) boss.hitTimer -= dt;
-
-                // Move boss towards player
-                let bx = player.x - boss.x; let by = player.y - boss.y;
-                let bLen = Math.hypot(bx, by);
-                if (bLen > 0) {
-                    boss.x += (bx/bLen) * boss.speed * dt;
-                    boss.y += (by/bLen) * boss.speed * dt;
-                }
-
-                // Boss hits Player
-                if (bLen < 60) {
-                    player.x += (bx/bLen) * -150; // knockback
-                    player.y += (by/bLen) * -150;
+                let bx = player.x - boss.x, by = player.y - boss.y, bl = Math.hypot(bx, by);
+                if (bl > 0) { boss.x += (bx/bl)*boss.speed*dt; boss.y += (by/bl)*boss.speed*dt; }
+                if (bl < 60) {
+                    player.x -= (bx/bl)*150; player.y -= (by/bl)*150;
                     document.getElementById('damage-overlay').classList.add('damage-flash');
-                    setTimeout(()=>document.getElementById('damage-overlay').classList.remove('damage-flash'), 300);
-                    const jokes = ["Go back to your thesis! 🎓", "Take your studies seriously! 📚", "No games until graduation! 🎓"];
-                    showToast(jokes[Math.floor(Math.random()*jokes.length)]);
+                    setTimeout(() => document.getElementById('damage-overlay').classList.remove('damage-flash'), 300);
                 }
-
-                // Projectiles hit Boss
-                for (let i = projectiles.length - 1; i >= 0; i--) {
-                    let p = projectiles[i];
+                projectiles.forEach((p, i) => {
                     if (Math.hypot(p.x - boss.x, p.y - boss.y) < 70) {
-                        boss.hp -= 1; boss.hitTimer = 0.2;
-                        projectiles.splice(i, 1);
-                        for(let k=0; k<10; k++) spawnParticle(boss.x, boss.y, '#ffb3c6', 4);
-                        
-                        if(boss.hp <= 0) {
-                            boss.active = false; bossDefeated = true;
-                            for(let k=0; k<50; k++) spawnParticle(boss.x, boss.y, '#C026D3', 6);
-                            showToast("Memoire Master 2 Defeated! The path is clear. 💜");
-                            saveGame(); checkWinCondition();
-                        }
+                        boss.hp--; boss.hitTimer = 0.2; projectiles.splice(i, 1);
+                        if (boss.hp <= 0) { boss.active = false; bossDefeated = true; checkWin(); }
                     }
-                }
+                });
             }
 
-            // 6. Particles Update
-            for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
-                if (p.life <= 0) particles.splice(i, 1);
-            }
-
-            // Auto-footsteps
-            if ((dx !== 0 || dy !== 0) && Math.random() < 0.2) spawnParticle(player.x, player.y + 20, '#E0BBFF', 1.5);
+            projectiles.forEach((p, i) => { p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; if(p.life <= 0) projectiles.splice(i, 1); });
+            particles.forEach((p, i) => { p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; if(p.life <= 0) particles.splice(i, 1); });
         }
 
-        // ==========================================
-        // RENDERING
-        // ==========================================
         function draw() {
-            ctx.fillStyle = '#1a0024'; ctx.fillRect(0, 0, width, height);
-
-            ctx.save();
-            ctx.translate(-camera.x, -camera.y);
-
-            // Parallax Stars
-            ctx.fillStyle = '#E0BBFF';
-            backgroundStars.forEach(star => {
-                let px = (star.x + camera.x * 0.1) % MAP_SIZE; if(px<0) px+=MAP_SIZE;
-                let py = (star.y + camera.y * 0.1) % MAP_SIZE; if(py<0) py+=MAP_SIZE;
-                if (px > camera.x && px < camera.x + width && py > camera.y && py < camera.y + height) {
-                    ctx.globalAlpha = star.alpha;
-                    ctx.beginPath(); ctx.arc(px, py, star.size, 0, Math.PI*2); ctx.fill();
-                }
+            ctx.fillStyle = '#1a0024'; ctx.fillRect(0,0,width,height);
+            ctx.save(); ctx.translate(-camera.x, -camera.y);
+            backgroundStars.forEach(s => {
+                let px = (s.x + camera.x*0.1)%MAP_SIZE; if(px<0) px+=MAP_SIZE;
+                let py = (s.y + camera.y*0.1)%MAP_SIZE; if(py<0) py+=MAP_SIZE;
+                ctx.globalAlpha = s.alpha; ctx.fillStyle = '#E0BBFF'; ctx.beginPath(); ctx.arc(px,py,s.size,0,Math.PI*2); ctx.fill();
             });
             ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'lighter';
-
-            // Memory Orbs & Auras
-            MEMORIES.forEach(mem => {
-                const isUnl = unlockedMemories.includes(mem.id);
-                // Aura
-                const grad = ctx.createRadialGradient(mem.x, mem.y, 0, mem.x, mem.y, isUnl ? 200 : 400);
-                grad.addColorStop(0, mem.color + (isUnl ? '11' : '33')); grad.addColorStop(1, 'transparent');
-                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(mem.x, mem.y, 400, 0, Math.PI*2); ctx.fill();
-
-                // Core
-                if (!isUnl) {
-                    const pulse = Math.sin(Date.now() / 250) * 8 + 25;
-                    ctx.shadowBlur = 40; ctx.shadowColor = mem.color; ctx.fillStyle = mem.color;
-                    ctx.beginPath(); ctx.arc(mem.x, mem.y, pulse, 0, Math.PI*2); ctx.fill(); ctx.shadowBlur = 0;
-                } else {
-                    ctx.fillStyle = mem.color + '66'; ctx.beginPath(); ctx.arc(mem.x, mem.y, 10, 0, Math.PI*2); ctx.fill();
+            MEMORIES.forEach(m => {
+                const un = unlockedMemories.includes(m.id);
+                const g = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, un ? 200 : 400);
+                g.addColorStop(0, m.color + (un ? '11' : '33')); g.addColorStop(1, 'transparent');
+                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(m.x, m.y, 400, 0, Math.PI*2); ctx.fill();
+                if (!un) {
+                    ctx.fillStyle = m.color; ctx.beginPath(); ctx.arc(m.x, m.y, 25 + Math.sin(Date.now()/250)*5, 0, Math.PI*2); ctx.fill();
                 }
             });
             ctx.globalCompositeOperation = 'source-over';
-
-            // Items (Chocolates)
-            ctx.font = "24px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            chocolates.forEach(ch => { if (!ch.collected) ctx.fillText('🍫', ch.x, ch.y); });
-
-            // Projectiles
-            ctx.font = "20px Arial";
-            projectiles.forEach(p => { ctx.fillText('✨', p.x, p.y); });
-
-            // Particles
-            particles.forEach(p => {
-                ctx.fillStyle = p.color; ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
-            });
-            ctx.globalAlpha = 1;
-
-            // Boss 🎓
+            ctx.font = "24px Arial"; chocolates.forEach(ch => { if(!ch.collected) ctx.fillText('🍫', ch.x, ch.y); });
+            projectiles.forEach(p => ctx.fillText('✨', p.x, p.y));
+            particles.forEach(p => { ctx.fillStyle = p.color; ctx.globalAlpha = p.life/p.maxLife; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
             if (boss.active) {
-                ctx.font = "80px Arial";
-                ctx.globalAlpha = boss.hitTimer > 0 ? 0.5 : 1; // Flash red/transparent on hit
-                const bHover = Math.sin(Date.now() / 150) * 10;
-                ctx.fillText(boss.emoji, boss.x, boss.y + bHover);
-                ctx.globalAlpha = 1;
-                // Boss HP Bar
-                ctx.fillStyle = 'red'; ctx.fillRect(boss.x - 40, boss.y - 60, 80, 8);
-                ctx.fillStyle = '#00ff00'; ctx.fillRect(boss.x - 40, boss.y - 60, (boss.hp/boss.maxHp)*80, 8);
+                ctx.globalAlpha = boss.hitTimer > 0 ? 0.5 : 1;
+                ctx.font = "80px Arial"; ctx.fillText(boss.emoji, boss.x, boss.y);
+                ctx.fillStyle = 'red'; ctx.fillRect(boss.x-40, boss.y-60, 80, 8);
+                ctx.fillStyle = '#00ff00'; ctx.fillRect(boss.x-40, boss.y-60, (boss.hp/boss.maxHp)*80, 8);
             }
-
-            // Player Shadow & Sprite
-            ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(player.x, player.y + 20, 22, 10, 0, 0, Math.PI*2); ctx.fill();
-            const hover = Math.sin(Date.now() / 200) * 4;
-            ctx.font = "55px Arial"; ctx.fillText(player.emoji, player.x, player.y + hover);
-
-            // Light Player Aura
-            ctx.globalCompositeOperation = 'lighter';
-            const pGrad = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, 180);
-            pGrad.addColorStop(0, 'rgba(224, 187, 255, 0.15)'); pGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = pGrad; ctx.beginPath(); ctx.arc(player.x, player.y, 180, 0, Math.PI*2); ctx.fill();
-            ctx.globalCompositeOperation = 'source-over';
-
+            ctx.globalAlpha = 1; ctx.font = "55px Arial"; ctx.fillText(player.emoji, player.x, player.y + Math.sin(Date.now()/200)*4);
             ctx.restore();
 
-            // ==========================================
-            // UX: Edge Screen Pointers for Navigation
-            // ==========================================
-            MEMORIES.forEach(mem => {
-                if (!unlockedMemories.includes(mem.id)) {
-                    // Calculate if memory is off-screen
-                    if (mem.x < camera.x || mem.x > camera.x + width || mem.y < camera.y || mem.y > camera.y + height) {
-                        let angle = Math.atan2(mem.y - player.y, mem.x - player.x);
-                        // Draw arrow on edge
-                        let px = width/2 + Math.cos(angle) * (width/2 - 40);
-                        let py = height/2 + Math.sin(angle) * (height/2 - 40);
-                        
-                        // Keep within bounds
-                        px = Math.max(40, Math.min(width-40, px));
-                        py = Math.max(40, Math.min(height-40, py));
-
-                        ctx.save();
-                        ctx.translate(px, py);
-                        ctx.rotate(angle);
-                        ctx.fillStyle = mem.color + 'aa';
-                        ctx.shadowBlur = 10; ctx.shadowColor = mem.color;
-                        ctx.beginPath();
-                        ctx.moveTo(15, 0); ctx.lineTo(-10, 10); ctx.lineTo(-10, -10); ctx.closePath();
-                        ctx.fill();
-                        ctx.restore();
+            MEMORIES.forEach(m => {
+                if (!unlockedMemories.includes(m.id)) {
+                    if (m.x < camera.x || m.x > camera.x + width || m.y < camera.y || m.y > camera.y + height) {
+                        let a = Math.atan2(m.y-player.y, m.x-player.x);
+                        ctx.save(); ctx.translate(Math.max(40, Math.min(width-40, width/2 + Math.cos(a)*(width/2-40))), Math.max(40, Math.min(height-40, height/2 + Math.sin(a)*(height/2-40))));
+                        ctx.rotate(a); ctx.fillStyle = m.color + 'aa'; ctx.beginPath(); ctx.moveTo(15,0); ctx.lineTo(-10,10); ctx.lineTo(-10,-10); ctx.fill(); ctx.restore();
                     }
                 }
             });
         }
 
-        // ==========================================
-        // GAME MECHANICS
-        // ==========================================
-        function spawnParticle(x, y, color, speedScale=1) {
-            particles.push({
-                x, y, vx: (Math.random()-0.5)*120*speedScale, vy: (Math.random()-0.5)*120*speedScale,
-                life: Math.random()*0.8+0.5, maxLife: 1.3, size: Math.random()*3+2, color
-            });
-        }
-
-        function playerShoot() {
-            if(!hasWand) return;
-            // Shoot in facing direction, default right if idle
-            let dx = player.faceX; let dy = player.faceY;
-            if(dx === 0 && dy === 0) { dx = 1; dy = 0; }
-            projectiles.push({ x: player.x, y: player.y, vx: dx * 600, vy: dy * 600, life: 1.5 });
-            
-            // Recoil animation scale on button
-            const btn = document.getElementById('shoot-btn');
-            if(btn) { btn.style.transform = 'scale(0.8)'; setTimeout(()=>btn.style.transform='scale(1)', 100); }
-        }
-
-        function spawnBoss() {
-            if(bossDefeated) return;
-            boss.active = true;
-            boss.hp = boss.maxHp;
-            boss.x = player.x + 800; // Spawn off screen
-            boss.y = player.y;
-            showToast("WARNING: Memoire Master 2 approaches! 🎓 Shoot it!");
-        }
-
-        function triggerMemory(mem) {
-            isModalOpen = true;
-            document.getElementById('modal-icon').innerText = mem.icon;
-            document.getElementById('modal-title').innerText = mem.title;
-            document.getElementById('modal-title').style.color = mem.color;
-            document.getElementById('modal-text').innerText = mem.text;
-            document.getElementById('modal-whisper').innerText = `"${mem.whisper}"`;
-            
+        function triggerMemory(m) {
+            isModalOpen = true; unlockedMemories.push(m.id); updateUI();
+            document.getElementById('modal-icon').innerText = m.icon;
+            document.getElementById('modal-title').innerText = m.title; document.getElementById('modal-title').style.color = m.color;
+            document.getElementById('modal-text').innerText = m.text; document.getElementById('modal-whisper').innerText = m.whisper;
             document.getElementById('memory-modal').classList.remove('hide');
-            
-            unlockedMemories.push(mem.id);
-            for(let i=0; i<40; i++) spawnParticle(player.x, player.y, mem.color, 5);
-            
-            updateUI(); saveGame();
         }
 
-        function closeModal() {
-            document.getElementById('memory-modal').classList.add('hide');
-            player.cooldown = 1.5; // Prevent immediate re-trigger
-            
-            // RESET physics delta time to prevent jumping when unpausing
-            lastTime = performance.now(); 
-            isModalOpen = false;
+        function closeModal() { document.getElementById('memory-modal').classList.add('hide'); player.cooldown = 1.5; lastTime = performance.now(); isModalOpen = false; checkWin(); }
 
-            checkWinCondition();
-        }
+        function checkWin() { if (unlockedMemories.length === 7 && bossDefeated && !finalTriggered) { finalTriggered = true; isModalOpen = true; document.getElementById('final-screen').classList.remove('hide'); generateConfetti(); } }
 
-        function checkWinCondition() {
-            if (unlockedMemories.length === MEMORIES.length && bossDefeated && !finalTriggered) {
-                finalTriggered = true;
-                setTimeout(() => {
-                    isModalOpen = true;
-                    document.getElementById('final-screen').classList.remove('hide');
-                    generateConfetti();
-                }, 1000);
-            }
-        }
+        function restartGame() { window.location.reload(); }
 
-        function continueExploring() {
-            document.getElementById('final-screen').classList.add('hide');
-            lastTime = performance.now();
-            isModalOpen = false;
-        }
+        function playerShoot() { if(!hasWand) return; projectiles.push({ x: player.x, y: player.y, vx: player.faceX*600, vy: player.faceY*600, life: 1.5 }); }
 
-        // ==========================================
-        // UI & SYSTEM
-        // ==========================================
-        let toastTimer;
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.style.opacity = '1';
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
-        }
+        function spawnBoss() { boss.active = true; boss.hp = 10; boss.x = player.x + 800; boss.y = player.y; showToast("The Memoire Master Approaches! 🎓"); }
 
-        function updateUI() {
-            document.getElementById('ui-score').innerText = `${unlockedMemories.length}/${MEMORIES.length}`;
-            document.getElementById('ui-choc').innerText = `${chocolatesCollected}/12`;
-            if (hasWand) document.getElementById('shoot-btn').style.display = 'flex';
-        }
+        function updateUI() { document.getElementById('ui-score').innerText = `${unlockedMemories.length}/7`; document.getElementById('ui-choc').innerText = `${chocolatesCollected}/12`; }
 
-        function tapPapa() {
-            papaTaps++;
-            if (papaTaps === 5) showToast("Papa feels the taps... 💜");
-            if (papaTaps === 15) showToast("Almost there, baby... 💜");
-            if (papaTaps >= 25) {
-                showToast("SECRET UNLOCKED: Papa's Hidden Hug Spot 💜 Extra real-life cuddles incoming!");
-                papaTaps = 0;
-                for(let i=0; i<60; i++) spawnParticle(player.x, player.y, '#C026D3', 6);
-            }
-        }
+        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 3000); }
 
-        function toggleAudio() {
-            const bgm = document.getElementById('bgm');
-            const btn = document.getElementById('audio-btn');
-            if (audioPlaying) { bgm.pause(); btn.innerText = "🎵 BGM: OFF"; btn.classList.remove('text-pink-400'); }
-            else { bgm.play().catch(()=>{}); btn.innerText = "🎵 BGM: ON"; btn.classList.add('text-pink-400'); }
-            audioPlaying = !audioPlaying;
-        }
+        function toggleAudio() { const b = document.getElementById('bgm'); audioPlaying ? b.pause() : b.play(); audioPlaying = !audioPlaying; document.getElementById('audio-btn').innerText = audioPlaying ? "🎵 BGM: ON" : "🎵 BGM: OFF"; }
 
         function generateConfetti() {
-            const container = document.getElementById('confetti-container');
-            container.innerHTML = '';
-            const colors = ['#C026D3', '#E0BBFF', '#ffb3c6', '#faedcd'];
-            for(let i=0; i<120; i++) {
-                const conf = document.createElement('div');
-                conf.innerText = '💜'; conf.style.position = 'absolute';
-                conf.style.left = Math.random() * 100 + 'vw'; conf.style.top = '100vh';
-                conf.style.fontSize = (Math.random() * 20 + 10) + 'px';
-                conf.style.color = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.animation = `floatUpConfetti ${Math.random()*3+3}s linear infinite`;
-                conf.style.animationDelay = `${Math.random()*2}s`;
-                container.appendChild(conf);
+            const c = document.getElementById('confetti-container');
+            for(let i=0; i<100; i++) {
+                const d = document.createElement('div'); d.innerText = '💜'; d.style.position = 'absolute'; d.style.left = Math.random()*100+'vw'; d.style.top = '100vh';
+                d.style.animation = `floatUpConfetti ${Math.random()*3+2}s linear infinite`; c.appendChild(d);
             }
         }
 
-        // ==========================================
-        // SAVE SYSTEM
-        // ==========================================
-        function saveGame() {
-            const data = {
-                x: player.x, y: player.y,
-                unlocked: unlockedMemories,
-                chocs: chocolatesCollected,
-                wand: hasWand,
-                bossDef: bossDefeated,
-                // Save indices of collected chocolates
-                chocMap: chocolates.map(c => c.collected)
-            };
-            localStorage.setItem('ikram_realm_save_v2', JSON.stringify(data));
-        }
-
-        function loadGame() {
-            const saved = localStorage.getItem('ikram_realm_save_v2');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    if(data.x) player.x = data.x;
-                    if(data.y) player.y = data.y;
-                    if(data.unlocked) unlockedMemories = data.unlocked;
-                    if(data.chocs) chocolatesCollected = data.chocs;
-                    if(data.wand) hasWand = data.wand;
-                    if(data.bossDef) bossDefeated = data.bossDef;
-                    if(data.chocMap) {
-                        data.chocMap.forEach((c, i) => { if(chocolates[i]) chocolates[i].collected = c; });
-                    }
-                } catch(e) {}
-            }
-            updateUI();
-        }
+        function tapPapa() { papaTaps++; if(papaTaps >= 25) { showToast("Extra real-life cuddles unlocked! 💜"); papaTaps = 0; } }
     </script>
 </body>
 </html>
