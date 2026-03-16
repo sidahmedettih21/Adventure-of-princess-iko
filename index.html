@@ -48,25 +48,24 @@
             z-index: 10;
             background-size: 100% 3px;
             pointer-events: none;
-            opacity: 0.4;
+            opacity: 0.3;
         }
 
         .font-gamer { font-family: 'VT323', monospace; }
         .font-whisper { font-family: 'Caveat', cursive; }
 
         .glass-panel {
-            background: rgba(26, 0, 36, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(192, 38, 211, 0.4);
-            box-shadow: 0 0 30px rgba(107, 0, 176, 0.6), inset 0 0 20px rgba(192, 38, 211, 0.2);
+            background: rgba(26, 0, 36, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(192, 38, 211, 0.5);
+            box-shadow: 0 0 40px rgba(107, 0, 176, 0.6);
         }
 
         .neon-text {
-            text-shadow: 0 0 5px var(--soft-purple), 0 0 15px var(--neon-purple), 0 0 30px var(--neon-purple);
+            text-shadow: 0 0 5px var(--soft-purple), 0 0 15px var(--neon-purple);
         }
 
-        /* UI Overlays */
         #ui-layer {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -76,16 +75,14 @@
 
         .interactive { pointer-events: auto; }
 
-        /* Virtual Joystick */
         #joystick-zone {
             position: absolute;
-            bottom: 20px; left: 20px;
-            width: 150px; height: 150px;
-            background: rgba(224, 187, 255, 0.05);
+            bottom: 40px; left: 40px;
+            width: 120px; height: 120px;
+            background: rgba(224, 187, 255, 0.1);
             border-radius: 50%;
-            border: 2px dashed rgba(192, 38, 211, 0.3);
+            border: 2px solid rgba(192, 38, 211, 0.3);
             display: flex; justify-content: center; align-items: center;
-            opacity: 0.7;
         }
 
         #joystick-knob {
@@ -94,30 +91,27 @@
             border-radius: 50%;
             box-shadow: 0 0 15px var(--neon-purple);
             position: absolute;
-            transition: transform 0.1s;
         }
 
         @media (min-width: 768px) {
             #joystick-zone { display: none; }
-            #desktop-hints { display: block !important; }
         }
 
-        /* Animations */
         @keyframes pulseGlow {
-            0% { box-shadow: 0 0 20px var(--neon-purple); }
-            100% { box-shadow: 0 0 50px var(--soft-purple), 0 0 80px var(--neon-purple); }
+            0% { box-shadow: 0 0 20px var(--neon-purple); transform: scale(1); }
+            100% { box-shadow: 0 0 50px var(--soft-purple); transform: scale(1.05); }
         }
 
         .animate-pulse-glow { animation: pulseGlow 2s infinite alternate; }
         
-        @keyframes floatUpConfetti {
-            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-20px); }
         }
-        
+
         .hide { display: none !important; }
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="crt">
@@ -125,20 +119,15 @@
     <canvas id="gameCanvas"></canvas>
 
     <div id="ui-layer">
-        <div class="absolute top-4 left-4 interactive flex gap-4">
-            <button onclick="toggleAudio()" id="audio-btn" class="glass-panel text-purple-200 px-4 py-2 rounded-full font-gamer text-xl hover:bg-purple-900 transition shadow-[0_0_15px_#C026D3]">
-                🎵 BGM: OFF
-            </button>
-            <div class="glass-panel text-pink-300 px-4 py-2 rounded-full font-gamer text-xl tracking-widest">
-                Memories: <span id="ui-score">0</span>/7
+        <div class="absolute top-6 left-6 right-6 flex justify-between items-start interactive">
+            <div class="flex gap-4">
+                <button onclick="toggleAudio()" id="audio-btn" class="glass-panel text-purple-200 px-5 py-2 rounded-full font-gamer text-2xl hover:bg-purple-900 transition shadow-[0_0_15px_#C026D3]">
+                    🎵 SOUND: OFF
+                </button>
+                <div class="glass-panel text-pink-300 px-6 py-2 rounded-full font-gamer text-2xl tracking-widest">
+                    MEMORIES: <span id="ui-score">0</span>/7
+                </div>
             </div>
-        </div>
-
-        <div id="desktop-hints" class="hidden absolute bottom-6 right-6 glass-panel px-4 py-2 rounded-lg text-purple-300 font-gamer text-xl tracking-wide">
-            WASD / Arrows to explore 💜
-        </div>
-
-        <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 md:left-auto md:right-6 md:top-4 md:bottom-auto interactive">
             <div id="papa-btn" class="w-16 h-16 glass-panel rounded-full flex items-center justify-center text-3xl cursor-pointer hover:scale-110 transition animate-pulse-glow" onclick="tapPapa()">
                 🕴️
             </div>
@@ -148,43 +137,39 @@
             <div id="joystick-knob"></div>
         </div>
 
-        <div id="toast" class="absolute top-20 left-1/2 transform -translate-x-1/2 glass-panel text-pink-200 px-8 py-3 rounded-full font-gamer text-2xl opacity-0 transition-opacity duration-500 tracking-wider">
-            Message
+        <div id="toast" class="absolute top-1/4 left-1/2 transform -translate-x-1/2 glass-panel text-pink-200 px-8 py-4 rounded-full font-gamer text-3xl opacity-0 transition-opacity duration-500 tracking-wider">
+            Welcome home, Ul-iw 💜
         </div>
     </div>
 
-    <div id="memory-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hide interactive">
-        <div class="glass-panel max-w-lg w-full p-8 rounded-3xl text-center relative border-t-4 border-pink-500 fade-in">
-            <div id="modal-icon" class="text-6xl mb-4 drop-shadow-[0_0_20px_#E0BBFF] animate-bounce">💧</div>
-            <h2 id="modal-title" class="font-gamer text-4xl text-pink-300 mb-6 neon-text tracking-wide">Title</h2>
-            <p id="modal-text" class="text-xl text-purple-100 leading-relaxed mb-8 font-semibold">Memory text goes here.</p>
+    <div id="memory-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl hide interactive">
+        <div class="glass-panel max-w-lg w-full p-10 rounded-[2rem] text-center relative border-b-8 border-purple-600 fade-in">
+            <div id="modal-icon" class="text-7xl mb-6 drop-shadow-[0_0_20px_#E0BBFF]">💜</div>
+            <h2 id="modal-title" class="font-gamer text-5xl text-pink-300 mb-6 neon-text">Memory</h2>
+            <p id="modal-text" class="text-2xl text-purple-50 text-left font-medium leading-relaxed mb-8 italic">Text...</p>
             <div class="w-full h-px bg-gradient-to-r from-transparent via-purple-500 to-transparent mb-8"></div>
-            <p id="modal-whisper" class="font-whisper text-3xl text-pink-400 mb-8 leading-snug">"Whisper..."</p>
-            <button onclick="closeModal()" class="px-8 py-3 rounded-full border-2 border-pink-500 text-pink-200 font-gamer text-2xl hover:bg-pink-900 transition animate-pulse-glow">
-                Keep in Heart
+            <p id="modal-whisper" class="font-whisper text-4xl text-pink-400 mb-10 leading-snug">"Whisper..."</p>
+            <button onclick="closeModal()" class="w-full py-4 rounded-2xl bg-purple-600 text-white font-gamer text-3xl hover:bg-purple-500 transition shadow-[0_0_20px_#C026D3]">
+                Keep it Forever
             </button>
         </div>
     </div>
 
     <div id="final-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-6 text-center bg-[#0a0010] hide interactive">
         <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
-        <div class="glass-panel p-10 rounded-3xl border-4 border-pink-500 shadow-[0_0_80px_#C026D3] max-w-3xl w-full flex flex-col items-center relative z-10 fade-in">
-            <div class="flex gap-6 text-6xl mb-8">
-                <span class="animate-bounce" style="animation-delay: 0s;">💍</span>
-                <span class="animate-bounce" style="animation-delay: 0.2s;">🏎️</span>
-                <span class="animate-bounce" style="animation-delay: 0.4s;">🍰</span>
-            </div>
-            <h1 class="font-gamer text-5xl md:text-7xl neon-text text-pink-300 mb-8 uppercase tracking-widest">Kabyle Forever Realm</h1>
-            <p class="text-2xl text-purple-200 mb-6 leading-relaxed font-bold">All pieces of our story collected.<br>You are safely stored in Papa's heart file. (Ul-iw)</p>
+        <div class="glass-panel p-12 rounded-[3rem] border-4 border-pink-500 shadow-[0_0_100px_#C026D3] max-w-4xl w-full flex flex-col items-center relative z-10 fade-in">
+            <h1 class="font-gamer text-6xl md:text-8xl neon-text text-pink-300 mb-6 uppercase tracking-tighter">IKRAM'S ETERNAL REALM</h1>
+            <p class="text-3xl text-purple-200 mb-10 font-bold">Kemm d ayen i saramagh. (You are all I wish for)</p>
             
-            <div class="bg-purple-900/60 border-2 border-purple-400 p-6 rounded-xl mb-8 w-full shadow-[inset_0_0_20px_#6B00B0]">
-                <p class="font-gamer text-pink-400 text-3xl tracking-widest mb-2">CERTIFICATE OF PERMANENCE</p>
-                <p class="font-gamer text-red-400 text-2xl tracking-wider mb-1">ERROR: Delete Button Not Found.</p>
-                <p class="font-gamer text-green-400 text-2xl tracking-wider">STATUS: Bound Together For Life.</p>
+            <div class="bg-purple-950/80 border-2 border-purple-400 p-8 rounded-2xl mb-10 w-full shadow-[inset_0_0_30px_#6B00B0]">
+                <p class="font-gamer text-pink-400 text-4xl tracking-widest mb-4">STATUS: UNBREAKABLE BOND</p>
+                <p class="text-xl text-purple-300">Every memory has been locked in the soul. You are home.</p>
             </div>
 
-            <button onclick="continueExploring()" class="px-10 py-4 rounded-full border-2 border-pink-400 text-pink-200 hover:bg-pink-900 transition font-gamer text-3xl animate-pulse-glow">
-                Stay in Our Safe Space
+            <div class="flex gap-8 text-7xl mb-10">💍 🏎️ 🍰</div>
+            
+            <button onclick="continueExploring()" class="px-12 py-5 rounded-full border-2 border-pink-400 text-pink-200 hover:bg-pink-900 transition font-gamer text-4xl animate-pulse-glow">
+                Explore Our World
             </button>
         </div>
     </div>
@@ -194,225 +179,132 @@
     </audio>
 
     <script>
-        // --- GAME DATA & CONFIG ---
+        // --- DATA ---
         const MEMORIES = [
-            { id: 1, x: 1200, y: 1200, color: '#4facfe', icon: '💧', title: 'Rain Garden', text: 'You walked 30 minutes in the rain just so I wouldn’t be disappointed… carrying that tiramisu like it was the most important thing in the world. In that moment I knew — you’re my safe place forever. (Axxam-iw)', whisper: 'My quiet Kabyle princess who chooses me even when it’s pouring… you are my spark in the darkness 💜' },
-            { id: 2, x: 2800, y: 1200, color: '#d4a373', icon: '🍫', title: 'Chocolate Grove', text: 'Every time I see chocolate I remember how your eyes light up. You deserve the sweetest things in life, and I want to be the one who keeps giving them to you.', whisper: 'You melt me faster than any chocolate ever could, my baby.' },
-            { id: 3, x: 1200, y: 2800, color: '#faedcd', icon: '🍰', title: 'Basbosa Kitchen', text: 'Your mom making basbosa and saying "send it to Sidahmed"… that was the day your whole family quietly chose me too. I still taste that sweetness every single day.', whisper: 'You feed my heart even when we’re apart. (Tayri-w)' },
-            { id: 4, x: 2800, y: 2800, color: '#e0bbff', icon: '✨', title: '5AM Star Sky', text: 'Your sleepy baby-voice humming at 5 a.m. while your brother was home… no words, just pure closeness. That sound lives inside my chest now.', whisper: 'You only let your softest self out for me… and I protect it with everything I have.' },
-            { id: 5, x: 2000, y: 1000, color: '#ffb3c6', icon: '🐈', title: 'My Little Cat', text: 'Sometimes you act like my little stupid cat, hiding away when the world gets too loud. But I see how hard you fight, how deeply you care, and how beautifully you are growing. I am so unbelievably proud of the woman you are, my baby. You never have to be perfect for me — just be mine.', whisper: 'You are my little baby first, and my forever second. I’ve got you. (Ul-iw)' },
-            { id: 6, x: 2000, y: 3000, color: '#ff595e', icon: '🏎️', title: 'Future Porsche Path', text: 'One day I’ll pull up in that Porsche and you’ll never have to work again. We’ll build our zero-from-scratch home together, just like you dreamed.', whisper: 'You’re not just my girlfriend… you’re my forever co-pilot.' },
-            { id: 7, x: 1600, y: 2000, color: '#8ac926', icon: '🐌', title: 'Snail Secret', text: 'Remember the silly snail picture? You said "look how slimy it is… I’m even slimier 😂" — that random moment still makes me laugh and love you more. Our little inside jokes are everything.', whisper: 'Even the weirdest moments with you feel like magic. (Ul-iw)' }
+            { id: 1, x: 1000, y: 1000, color: '#4facfe', icon: '💧', title: 'Rain Garden', text: 'You walked 30 minutes in the rain just so I wouldn’t be disappointed… carrying that tiramisu like it was the most important thing in the world. In that moment I knew — you’re my safe place forever. (Axxam-iw)', whisper: 'My quiet Kabyle princess... you are my spark in the darkness 💜' },
+            { id: 2, x: 3000, y: 1000, color: '#d4a373', icon: '🍫', title: 'Chocolate Grove', text: 'Every time I see chocolate I remember how your eyes light up. You deserve the sweetest things in life, and I want to be the one who keeps giving them to you.', whisper: 'You melt me faster than any chocolate ever could, my baby.' },
+            { id: 3, x: 1000, y: 3000, color: '#faedcd', icon: '🍰', title: 'Basbosa Kitchen', text: 'Your mom making basbosa and saying "send it to Sidahmed"… that was the day your whole family quietly chose me too. I still taste that sweetness every single day.', whisper: 'You feed my heart even when we’re apart. (Tayri-w)' },
+            { id: 4, x: 3000, y: 3000, color: '#e0bbff', icon: '✨', title: '5AM Star Sky', text: 'Your sleepy baby-voice humming at 5 a.m. while your brother was home… no words, just pure closeness. That sound lives inside my chest now.', whisper: 'You only let your softest self out for me… and I protect it.' },
+            { id: 5, x: 2000, y: 800, color: '#ffb3c6', icon: '🐈', title: 'My Little Stupid Cat', text: 'Sometimes you act like my little stupid cat, hiding away when the world gets too loud. But I see how hard you fight, how deeply you care, and how beautifully you are growing. I am so unbelievably proud of the woman you are, my baby. You never have to be perfect for me — just be mine.', whisper: 'You are my little baby first, and my forever second. I’ve got you. (Ul-iw)' },
+            { id: 6, x: 2000, y: 3200, color: '#ff595e', icon: '🏎️', title: 'The Porsche Promise', text: 'One day I’ll pull up in that Porsche and you’ll never have to work again. We’ll build our zero-from-scratch home together, just like you dreamed. We started from nothing, but we are building everything.', whisper: 'You’re not just my girlfriend… you’re my forever co-pilot.' },
+            { id: 7, x: 1800, y: 2000, color: '#8ac926', icon: '🐌', title: 'Snail Secret', text: 'Remember the silly snail picture? You said "look how slimy it is… I’m even slimier 😂" — that random moment still makes me laugh and love you more. Our little inside jokes are everything.', whisper: 'Even the weirdest moments with you feel like magic.' }
         ];
 
         const MAP_SIZE = 4000;
-        const TILE_SIZE = 100;
-
-        // --- STATE ---
-        let canvas, ctx;
-        let width, height;
+        let canvas, ctx, width, height;
         let lastTime = 0;
-        let audioPlaying = false;
         let unlockedMemories = [];
         let isModalOpen = false;
         let finalTriggered = false;
         let papaTaps = 0;
+        let audioPlaying = false;
 
         const player = {
-            x: 2000, y: 2000,
-            vx: 0, vy: 0,
-            speed: 400, // px per sec
+            x: 2000, y: 2200,
+            speed: 450,
             size: 40,
             emoji: '👸🏻',
-            interactingCooldown: 0
+            cooldown: 0
         };
 
         const camera = { x: 0, y: 0 };
-        const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowLeft: false, ArrowDown: false, ArrowRight: false };
-        const joystick = { active: false, dx: 0, dy: 0, id: null };
-        
+        const keys = {};
+        const joystick = { active: false, dx: 0, dy: 0 };
         const particles = [];
-        const chocolates = [];
         const backgroundStars = [];
 
         // --- INIT ---
         window.onload = () => {
             canvas = document.getElementById('gameCanvas');
-            ctx = canvas.getContext('2d', { alpha: false });
+            ctx = canvas.getContext('2d');
             resize();
             window.addEventListener('resize', resize);
             
-            // Load Save
-            const saved = localStorage.getItem('ikram_realm_save_v2');
+            // Load fresh save key to avoid old bugs
+            const saved = localStorage.getItem('ikram_save_v3');
             if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    if (data.x) player.x = data.x;
-                    if (data.y) player.y = data.y;
-                    if (data.unlocked) unlockedMemories = data.unlocked;
-                } catch(e){}
+                const data = JSON.parse(saved);
+                unlockedMemories = data.unlocked || [];
+                player.x = data.x || 2000;
+                player.y = data.y || 2200;
             }
-            updateScore();
+            updateScoreUI();
 
-            // Setup Environment
-            for(let i=0; i<300; i++) {
+            for(let i=0; i<400; i++) {
                 backgroundStars.push({
                     x: Math.random() * MAP_SIZE,
                     y: Math.random() * MAP_SIZE,
-                    size: Math.random() * 2 + 0.5,
-                    alpha: Math.random() * 0.5 + 0.1
+                    size: Math.random() * 2 + 1,
+                    alpha: Math.random() * 0.5 + 0.2
                 });
             }
 
-            for(let i=0; i<30; i++) {
-                chocolates.push({
-                    x: Math.random() * MAP_SIZE,
-                    y: Math.random() * MAP_SIZE,
-                    collected: false
-                });
-            }
-
-            // Input Listeners
-            window.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; });
-            window.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
-            
+            window.addEventListener('keydown', e => keys[e.code] = true);
+            window.addEventListener('keyup', e => keys[e.code] = false);
             setupJoystick();
             
             requestAnimationFrame(gameLoop);
-            showToast("Welcome home, my baby 💜");
+            showToast("Welcome home, Ul-iw 💜");
         };
 
         function resize() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            canvas.width = width;
-            canvas.height = height;
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
         }
 
-        // --- JOYSTICK LOGIC ---
-        function setupJoystick() {
-            const zone = document.getElementById('joystick-zone');
-            const knob = document.getElementById('joystick-knob');
-            let rect = zone.getBoundingClientRect();
-            let centerX = rect.left + rect.width / 2;
-            let centerY = rect.top + rect.height / 2;
-
-            window.addEventListener('resize', () => {
-                rect = zone.getBoundingClientRect();
-                centerX = rect.left + rect.width / 2;
-                centerY = rect.top + rect.height / 2;
-            });
-
-            zone.addEventListener('touchstart', handleTouch, {passive: false});
-            zone.addEventListener('touchmove', handleTouch, {passive: false});
-            zone.addEventListener('touchend', endTouch);
-            zone.addEventListener('touchcancel', endTouch);
-
-            function handleTouch(e) {
-                e.preventDefault();
-                joystick.active = true;
-                const touch = e.targetTouches[0];
-                let dx = touch.clientX - centerX;
-                let dy = touch.clientY - centerY;
-                const distance = Math.hypot(dx, dy);
-                const maxDist = rect.width / 2;
-                
-                if (distance > maxDist) {
-                    dx = (dx / distance) * maxDist;
-                    dy = (dy / distance) * maxDist;
-                }
-                
-                knob.style.transform = `translate(${dx}px, ${dy}px)`;
-                
-                joystick.dx = dx / maxDist;
-                joystick.dy = dy / maxDist;
-            }
-
-            function endTouch(e) {
-                e.preventDefault();
-                joystick.active = false;
-                joystick.dx = 0;
-                joystick.dy = 0;
-                knob.style.transform = `translate(0px, 0px)`;
-            }
-        }
-
-        // --- GAME LOOP ---
+        // --- CORE LOOP ---
         function gameLoop(timestamp) {
-            const dt = (timestamp - lastTime) / 1000;
+            const dt = Math.min((timestamp - lastTime) / 1000, 0.1);
             lastTime = timestamp;
 
-            if (!isModalOpen && dt < 0.1) {
-                update(dt);
-            }
+            if (!isModalOpen) update(dt);
             draw();
-
             requestAnimationFrame(gameLoop);
         }
 
         function update(dt) {
             let dx = 0, dy = 0;
-            if (keys.w || keys.ArrowUp) dy -= 1;
-            if (keys.s || keys.ArrowDown) dy += 1;
-            if (keys.a || keys.ArrowLeft) dx -= 1;
-            if (keys.d || keys.ArrowRight) dx += 1;
+            if (keys['KeyW'] || keys['ArrowUp']) dy -= 1;
+            if (keys['KeyS'] || keys['ArrowDown']) dy += 1;
+            if (keys['KeyA'] || keys['ArrowLeft']) dx -= 1;
+            if (keys['KeyD'] || keys['ArrowRight']) dx += 1;
 
             if (joystick.active) {
                 dx = joystick.dx;
                 dy = joystick.dy;
             }
 
-            if (dx !== 0 && dy !== 0 && !joystick.active) {
-                const len = Math.hypot(dx, dy);
-                dx /= len; dy /= len;
+            if (dx !== 0 || dy !== 0) {
+                const mag = Math.hypot(dx, dy);
+                player.x += (dx / mag) * player.speed * dt;
+                player.y += (dy / mag) * player.speed * dt;
+                
+                if (Math.random() < 0.2) spawnParticle(player.x, player.y + 20, '#E0BBFF', 1);
             }
 
-            player.x += dx * player.speed * dt;
-            player.y += dy * player.speed * dt;
-
-            player.x = Math.max(player.size, Math.min(MAP_SIZE - player.size, player.x));
-            player.y = Math.max(player.size, Math.min(MAP_SIZE - player.size, player.y));
+            player.x = Math.max(50, Math.min(MAP_SIZE - 50, player.x));
+            player.y = Math.max(50, Math.min(MAP_SIZE - 50, player.y));
 
             camera.x = player.x - width / 2;
             camera.y = player.y - height / 2;
 
-            if ((dx !== 0 || dy !== 0) && Math.random() < 0.3) {
-                spawnParticle(player.x, player.y + 20, '#E0BBFF', 2);
-            }
-
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx * dt;
-                p.y += p.vy * dt;
-                p.life -= dt;
-                if (p.life <= 0) particles.splice(i, 1);
-            }
-
-            if (player.interactingCooldown > 0) player.interactingCooldown -= dt;
-
-            if (player.interactingCooldown <= 0) {
-                for (let mem of MEMORIES) {
+            // COLLISION - Increased radius for better feel
+            if (player.cooldown > 0) player.cooldown -= dt;
+            else {
+                MEMORIES.forEach(mem => {
                     if (!unlockedMemories.includes(mem.id)) {
-                        const dist = Math.hypot(player.x - mem.x, player.y - mem.y);
-                        if (dist < 80) {
-                            triggerMemory(mem);
-                            break;
-                        }
+                        const d = Math.hypot(player.x - mem.x, player.y - mem.y);
+                        if (d < 100) triggerMemory(mem);
                     }
-                }
+                });
             }
 
-            for (let choc of chocolates) {
-                if (!choc.collected) {
-                    if (Math.hypot(player.x - choc.x, player.y - choc.y) < 40) {
-                        choc.collected = true;
-                        for(let i=0; i<10; i++) spawnParticle(choc.x, choc.y, '#d4a373', 3);
-                        showToast("+ Sweetness 🍫");
-                    }
-                }
+            // Update particles
+            for(let i=particles.length-1; i>=0; i--) {
+                const p = particles[i];
+                p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt;
+                if(p.life <= 0) particles.splice(i, 1);
             }
-
-            if (Math.random() < 0.01) saveGame();
         }
 
         function draw() {
@@ -422,198 +314,183 @@
             ctx.save();
             ctx.translate(-camera.x, -camera.y);
 
+            // Stars
             ctx.fillStyle = '#E0BBFF';
-            backgroundStars.forEach(star => {
-                let px = star.x + camera.x * 0.2;
-                let py = star.y + camera.y * 0.2;
-                px = px % MAP_SIZE; if(px < 0) px += MAP_SIZE;
-                py = py % MAP_SIZE; if(py < 0) py += MAP_SIZE;
-                
-                if (px > camera.x && px < camera.x + width && py > camera.y && py < camera.y + height) {
-                    ctx.globalAlpha = star.alpha;
-                    ctx.beginPath();
-                    ctx.arc(px, py, star.size, 0, Math.PI*2);
-                    ctx.fill();
-                }
+            backgroundStars.forEach(s => {
+                ctx.globalAlpha = s.alpha * (0.5 + Math.sin(Date.now()/500)*0.5);
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
             });
             ctx.globalAlpha = 1;
 
-            ctx.globalCompositeOperation = 'lighter';
-
+            // Memories & Auras
             MEMORIES.forEach(mem => {
                 const isUnlocked = unlockedMemories.includes(mem.id);
+                const d = Math.hypot(player.x - mem.x, player.y - mem.y);
                 
-                const grad = ctx.createRadialGradient(mem.x, mem.y, 0, mem.x, mem.y, 400);
-                grad.addColorStop(0, mem.color + (isUnlocked ? '22' : '44'));
+                // Ground Aura
+                const grad = ctx.createRadialGradient(mem.x, mem.y, 0, mem.x, mem.y, 350);
+                grad.addColorStop(0, mem.color + (isUnlocked ? '15' : '40'));
                 grad.addColorStop(1, 'transparent');
                 ctx.fillStyle = grad;
-                ctx.beginPath();
-                ctx.arc(mem.x, mem.y, 400, 0, Math.PI*2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(mem.x, mem.y, 350, 0, Math.PI*2); ctx.fill();
 
                 if (!isUnlocked) {
-                    const pulse = Math.sin(Date.now() / 300) * 5 + 20;
-                    ctx.shadowBlur = 30;
-                    ctx.shadowColor = mem.color;
+                    const pulse = 20 + Math.sin(Date.now()/200)*8;
+                    ctx.shadowBlur = 30; ctx.shadowColor = mem.color;
                     ctx.fillStyle = mem.color;
-                    ctx.beginPath();
-                    ctx.arc(mem.x, mem.y, pulse, 0, Math.PI*2);
-                    ctx.fill();
+                    ctx.beginPath(); ctx.arc(mem.x, mem.y, pulse, 0, Math.PI*2); ctx.fill();
                     ctx.shadowBlur = 0;
-                } else {
-                    ctx.fillStyle = mem.color + '55';
-                    ctx.beginPath();
-                    ctx.arc(mem.x, mem.y, 10, 0, Math.PI*2);
-                    ctx.fill();
                 }
             });
 
-            ctx.globalCompositeOperation = 'source-over';
-
-            ctx.font = "20px Arial";
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            chocolates.forEach(choc => {
-                if (!choc.collected) {
-                    ctx.fillText('🍫', choc.x, choc.y);
-                }
-            });
-
+            // Particles
             particles.forEach(p => {
+                ctx.globalAlpha = p.life;
                 ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.life / p.maxLife;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill();
             });
             ctx.globalAlpha = 1;
 
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.beginPath();
-            ctx.ellipse(player.x, player.y + 15, 20, 10, 0, 0, Math.PI*2);
-            ctx.fill();
-
-            const hover = Math.sin(Date.now() / 200) * 3;
-            ctx.font = "50px Arial";
-            ctx.fillText(player.emoji, player.x, player.y + hover);
-
-            ctx.globalCompositeOperation = 'lighter';
-            const pGrad = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, 150);
-            pGrad.addColorStop(0, 'rgba(224, 187, 255, 0.2)');
-            pGrad.addColorStop(1, 'transparent');
-            ctx.fillStyle = pGrad;
-            ctx.beginPath();
-            ctx.arc(player.x, player.y, 150, 0, Math.PI*2);
-            ctx.fill();
-
-            // --- MAGICAL COMPASS AURA LOGIC ---
-            let closestMem = null;
-            let minDist = 1200; 
-            MEMORIES.forEach(mem => {
-                if (!unlockedMemories.includes(mem.id)) {
-                    let d = Math.hypot(player.x - mem.x, player.y - mem.y);
-                    if (d < minDist) {
-                        minDist = d;
-                        closestMem = mem;
-                    }
+            // Player Aura (Compass)
+            let closest = null; let minDist = 1500;
+            MEMORIES.forEach(m => {
+                if(!unlockedMemories.includes(m.id)) {
+                    let d = Math.hypot(player.x-m.x, player.y-m.y);
+                    if(d < minDist) { minDist = d; closest = m; }
                 }
             });
 
-            if (closestMem) {
-                let angle = Math.atan2(closestMem.y - player.y, closestMem.x - player.x);
-                let intensity = Math.max(0, 1 - (minDist - 80) / 1120); 
-                intensity = Math.pow(intensity, 1.5); 
-                let pulse = Math.sin(Date.now() / 150) * 8;
-
+            if (closest) {
+                const angle = Math.atan2(closest.y - player.y, closest.x - player.x);
+                const intensity = Math.max(0.1, 1 - (minDist/1500));
                 ctx.save();
-                ctx.translate(player.x, player.y + 10);
+                ctx.translate(player.x, player.y);
                 ctx.rotate(angle);
-
-                ctx.beginPath();
-                ctx.arc(0, 0, 70 + pulse, -Math.PI/5, Math.PI/5);
-                ctx.lineWidth = 4 + (intensity * 6);
-                ctx.strokeStyle = closestMem.color;
-                ctx.globalAlpha = intensity * 0.8;
-                ctx.shadowColor = closestMem.color;
-                ctx.shadowBlur = 20 * intensity;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-
-                const hexToRgb = hex => {
-                    let r = parseInt(hex.slice(1, 3), 16);
-                    let g = parseInt(hex.slice(3, 5), 16);
-                    let b = parseInt(hex.slice(5, 7), 16);
-                    return `${r},${g},${b}`;
-                };
-                
-                const rgbColor = hexToRgb(closestMem.color);
-                const coneGrad = ctx.createLinearGradient(0, 0, 120, 0);
-                coneGrad.addColorStop(0, `rgba(${rgbColor},${intensity * 0.4})`);
-                coneGrad.addColorStop(1, `rgba(${rgbColor},0)`);
-                
-                ctx.fillStyle = coneGrad;
-                ctx.shadowBlur = 0;
-                ctx.beginPath();
-                ctx.moveTo(30, 0);
-                ctx.arc(0, 0, 120 + pulse, -Math.PI/6, Math.PI/6);
-                ctx.closePath();
-                ctx.fill();
-
+                ctx.strokeStyle = closest.color;
+                ctx.lineWidth = 4 + (intensity*10);
+                ctx.globalAlpha = intensity;
+                ctx.beginPath(); ctx.arc(0, 0, 80, -0.4, 0.4); ctx.stroke();
                 ctx.restore();
             }
 
-            ctx.globalCompositeOperation = 'source-over';
+            // Player
+            ctx.font = "50px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(player.emoji, player.x, player.y + 15);
+
             ctx.restore();
         }
 
-        function spawnParticle(x, y, color, speedScale=1) {
-            particles.push({
-                x, y,
-                vx: (Math.random() - 0.5) * 100 * speedScale,
-                vy: (Math.random() - 0.5) * 100 * speedScale,
-                life: Math.random() * 1 + 0.5,
-                maxLife: 1.5,
-                size: Math.random() * 3 + 1,
-                color
-            });
-        }
-
-        // --- GAME LOGIC ---
+        // --- ACTIONS ---
         function triggerMemory(mem) {
             isModalOpen = true;
-            keys.w = keys.a = keys.s = keys.d = keys.ArrowUp = keys.ArrowDown = keys.ArrowLeft = keys.ArrowRight = false;
-            joystick.active = false;
-            
+            unlockedMemories.push(mem.id);
             document.getElementById('modal-icon').innerText = mem.icon;
             document.getElementById('modal-title').innerText = mem.title;
-            document.getElementById('modal-title').style.color = mem.color;
             document.getElementById('modal-text').innerText = mem.text;
             document.getElementById('modal-whisper').innerText = `"${mem.whisper}"`;
-            
             document.getElementById('memory-modal').classList.remove('hide');
-            
-            unlockedMemories.push(mem.id);
-            saveGame();
-            updateScore();
-            
-            for(let i=0; i<40; i++) spawnParticle(player.x, player.y, mem.color, 5);
+            updateScoreUI();
+            save();
+            for(let i=0; i<50; i++) spawnParticle(player.x, player.y, mem.color, 4);
         }
 
         function closeModal() {
             document.getElementById('memory-modal').classList.add('hide');
-            player.interactingCooldown = 2; 
             isModalOpen = false;
-
+            player.cooldown = 2;
             if (unlockedMemories.length === MEMORIES.length && !finalTriggered) {
-                setTimeout(triggerFinalRealm, 1000);
+                setTimeout(() => {
+                    document.getElementById('final-screen').classList.remove('hide');
+                    generateConfetti();
+                    finalTriggered = true;
+                }, 1000);
             }
         }
 
-        function triggerFinalRealm() {
-            finalTriggered = true;
-            isModalOpen = true;
-            document.getElementById('final-screen').classList.remove('hide');
-            generateConfetti();
+        function save() {
+            localStorage.setItem('ikram_save_v3', JSON.stringify({
+                unlocked: unlockedMemories,
+                x: player.x,
+                y: player.y
+            }));
+        }
+
+        function updateScoreUI() {
+            document.getElementById('ui-score').innerText = unlockedMemories.length;
+        }
+
+        function spawnParticle(x, y, color, speed) {
+            particles.push({
+                x, y, color, size: Math.random()*4+2,
+                vx: (Math.random()-0.5)*200*speed,
+                vy: (Math.random()-0.5)*200*speed,
+                life: 1.0
+            });
+        }
+
+        function toggleAudio() {
+            const bgm = document.getElementById('bgm');
+            const btn = document.getElementById('audio-btn');
+            if (audioPlaying) { bgm.pause(); btn.innerText = "🎵 SOUND: OFF"; }
+            else { bgm.play(); btn.innerText = "🎵 SOUND: ON"; }
+            audioPlaying = !audioPlaying;
+        }
+
+        function showToast(m) {
+            const t = document.getElementById('toast');
+            t.innerText = m; t.style.opacity = '1';
+            setTimeout(() => t.style.opacity = '0', 3000);
+        }
+
+        function tapPapa() {
+            papaTaps++;
+            if(papaTaps >= 25) {
+                showToast("SECRET: Papa's Unlimited Hug Spot Unlocked! 💜");
+                for(let i=0; i<100; i++) spawnParticle(player.x, player.y, '#ff00ff', 6);
+                papaTaps = 0;
+            } else if(papaTaps % 5 === 0) showToast("Papa is watching over you... 🕴️");
+        }
+
+        function setupJoystick() {
+            const zone = document.getElementById('joystick-zone');
+            const knob = document.getElementById('joystick-knob');
+            zone.addEventListener('touchstart', e => {
+                joystick.active = true;
+                handleTouch(e);
+            }, {passive: false});
+            zone.addEventListener('touchmove', handleTouch, {passive: false});
+            zone.addEventListener('touchend', () => {
+                joystick.active = false;
+                knob.style.transform = 'translate(0,0)';
+            });
+            function handleTouch(e) {
+                e.preventDefault();
+                const t = e.touches[0];
+                const rect = zone.getBoundingClientRect();
+                const cx = rect.left + 60, cy = rect.top + 60;
+                let dx = t.clientX - cx, dy = t.clientY - cy;
+                const dist = Math.hypot(dx, dy);
+                if(dist > 60) { dx *= 60/dist; dy *= 60/dist; }
+                knob.style.transform = `translate(${dx}px, ${dy}px)`;
+                joystick.dx = dx/60; joystick.dy = dy/60;
+            }
+        }
+
+        function generateConfetti() {
+            const c = document.getElementById('confetti-container');
+            for(let i=0; i<80; i++) {
+                const d = document.createElement('div');
+                d.innerHTML = '💜'; d.style.position = 'absolute';
+                d.style.left = Math.random()*100+'vw'; d.style.top = '100vh';
+                d.style.fontSize = Math.random()*30+10+'px';
+                d.style.transition = `all ${Math.random()*4+2}s linear`;
+                c.appendChild(d);
+                setTimeout(() => {
+                    d.style.transform = `translateY(-110vh) rotate(${Math.random()*360}deg)`;
+                    d.style.opacity = '0';
+                }, 100);
+            }
         }
 
         function continueExploring() {
@@ -621,73 +498,6 @@
             isModalOpen = false;
         }
 
-        function updateScore() {
-            document.getElementById('ui-score').innerText = unlockedMemories.length;
-        }
-
-        function saveGame() {
-            localStorage.setItem('ikram_realm_save_v2', JSON.stringify({
-                x: player.x,
-                y: player.y,
-                unlocked: unlockedMemories
-            }));
-        }
-
-        // --- UI & EASTER EGGS ---
-        function toggleAudio() {
-            const bgm = document.getElementById('bgm');
-            const btn = document.getElementById('audio-btn');
-            if (audioPlaying) {
-                bgm.pause();
-                btn.innerText = "🎵 BGM: OFF";
-                btn.classList.remove('text-pink-400');
-            } else {
-                bgm.play().catch(()=>{});
-                btn.innerText = "🎵 BGM: ON";
-                btn.classList.add('text-pink-400');
-            }
-            audioPlaying = !audioPlaying;
-        }
-
-        function tapPapa() {
-            papaTaps++;
-            if (papaTaps === 5) showToast("Papa feels the taps... 💜");
-            if (papaTaps === 15) showToast("Keep going, baby... 💜");
-            if (papaTaps >= 25) {
-                showToast("SECRET UNLOCKED: Papa's Hidden Hug Spot 💜 Extra real-life cuddles incoming!");
-                papaTaps = 0;
-                for(let i=0; i<50; i++) spawnParticle(player.x, player.y, '#C026D3', 5);
-            }
-        }
-
-        let toastTimeout;
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.style.opacity = '1';
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                t.style.opacity = '0';
-            }, 4000);
-        }
-
-        function generateConfetti() {
-            const container = document.getElementById('confetti-container');
-            container.innerHTML = '';
-            const colors = ['#C026D3', '#E0BBFF', '#ffb3c6', '#faedcd'];
-            for(let i=0; i<100; i++) {
-                const conf = document.createElement('div');
-                conf.innerText = '💜';
-                conf.style.position = 'absolute';
-                conf.style.left = Math.random() * 100 + 'vw';
-                conf.style.top = '100vh';
-                conf.style.fontSize = (Math.random() * 20 + 10) + 'px';
-                conf.style.color = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.animation = `floatUpConfetti ${Math.random() * 3 + 3}s linear infinite`;
-                conf.style.animationDelay = `${Math.random() * 2}s`;
-                container.appendChild(conf);
-            }
-        }
     </script>
 </body>
 </html>
