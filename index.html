@@ -3,362 +3,731 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Ikram's Purple Eternal Realm 💜</title>
+    <title>Ikram's Eternal Realm 💜</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&family=Quicksand:wght@400;600;700&family=Caveat:wght@600&display=swap');
 
         :root {
-            --dark-purple: #1a0024;
-            --neon-purple: #C026D3;
-            --soft-purple: #E0BBFF;
-            --deep-purple: #6B00B0;
+            --dark-purple: #1a0024; --neon-purple: #C026D3;
+            --soft-purple: #E0BBFF; --deep-purple: #6B00B0;
         }
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
-            touch-action: none;
-        }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        input, textarea { user-select: text; -webkit-user-select: text; touch-action: manipulation; pointer-events: auto; }
 
-        body, html {
-            margin: 0; padding: 0;
-            width: 100%; height: 100%;
-            background-color: var(--dark-purple);
-            overflow: hidden;
-            font-family: 'Quicksand', sans-serif;
-        }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: var(--dark-purple); overflow: hidden; font-family: 'Quicksand', sans-serif; touch-action: none; }
 
-        #gameCanvas { display: block; width: 100%; height: 100%; }
+        #gameCanvas { display: block; width: 100%; height: 100%; position: fixed; top: 0; left: 0; z-index: 1; touch-action: none; }
 
         .crt::before {
-            content: " "; display: block; position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
-            z-index: 5; background-size: 100% 3px;
-            pointer-events: none; opacity: 0.3;
+            z-index: 5; background-size: 100% 3px; pointer-events: none; opacity: 0.3;
         }
 
         .font-gamer { font-family: 'VT323', monospace; }
         .font-whisper { font-family: 'Caveat', cursive; }
 
         .glass-panel {
-            background: rgba(26, 0, 36, 0.85);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(192, 38, 211, 0.5);
-            box-shadow: 0 0 25px rgba(107, 0, 176, 0.7), inset 0 0 15px rgba(192, 38, 211, 0.3);
+            background: rgba(26, 0, 36, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(192, 38, 211, 0.5); box-shadow: 0 0 25px rgba(107, 0, 176, 0.7), inset 0 0 15px rgba(192, 38, 211, 0.3);
         }
 
         .neon-text { text-shadow: 0 0 5px var(--soft-purple), 0 0 15px var(--neon-purple), 0 0 30px var(--neon-purple); }
 
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
-        .interactive { pointer-events: auto; }
+        .interactive { pointer-events: auto; touch-action: manipulation; }
 
         #joystick-zone {
-            position: absolute; bottom: 30px; left: 30px;
-            width: 140px; height: 140px;
-            background: rgba(224, 187, 255, 0.05);
-            border-radius: 50%; border: 2px dashed rgba(192, 38, 211, 0.4);
+            position: absolute; bottom: 30px; left: 30px; width: 140px; height: 140px;
+            background: rgba(224, 187, 255, 0.05); border-radius: 50%; border: 2px dashed rgba(192, 38, 211, 0.4);
             display: flex; justify-content: center; align-items: center; opacity: 0.8;
+            z-index: 30;
         }
         #joystick-knob {
-            width: 50px; height: 50px;
-            background: radial-gradient(circle, var(--soft-purple), var(--neon-purple));
-            border-radius: 50%; box-shadow: 0 0 15px var(--neon-purple);
-            position: absolute; transition: transform 0.05s;
+            width: 50px; height: 50px; background: radial-gradient(circle, var(--soft-purple), var(--neon-purple));
+            border-radius: 50%; box-shadow: 0 0 15px var(--neon-purple); position: absolute; transition: transform 0.05s;
         }
 
         #shoot-btn {
-            position: absolute; bottom: 40px; right: 40px;
-            width: 90px; height: 90px;
-            background: radial-gradient(circle, #ffb3c6, #C026D3);
-            border-radius: 50%; display: none;
-            justify-content: center; align-items: center;
-            font-size: 40px; box-shadow: 0 0 30px var(--neon-purple);
-            border: 3px solid white; transition: transform 0.1s;
+            position: absolute; bottom: 40px; right: 40px; width: 80px; height: 80px;
+            background: radial-gradient(circle, #ffb3c6, #C026D3); border-radius: 50%; display: none;
+            justify-content: center; align-items: center; font-size: 35px; box-shadow: 0 0 30px var(--neon-purple);
+            border: 3px solid white; color: white; text-shadow: 0 0 5px black; z-index: 30;
         }
+        #shoot-btn:active { transform: scale(0.95); }
 
         @media (min-width: 1024px) { #joystick-zone { display: none; } #desktop-hints { display: block !important; } }
 
         @keyframes pulseGlow { 0% { box-shadow: 0 0 20px var(--neon-purple); } 100% { box-shadow: 0 0 50px var(--soft-purple), 0 0 80px var(--neon-purple); } }
         .animate-pulse-glow { animation: pulseGlow 1.5s infinite alternate; }
         
-        @keyframes floatUpConfetti { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
-        
         .hide { display: none !important; }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        
         .damage-flash { animation: damage 0.3s; }
         @keyframes damage { 0% { background-color: rgba(255,0,0,0.5); } 100% { background-color: transparent; } }
+
+        .inventory-item {
+            display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem;
+            border-radius: 9999px; background: rgba(39, 6, 40, 0.9); border: 1px solid rgba(192, 38, 211, 0.3);
+            color: #ffffff; font-size: clamp(0.7rem, 3vw, 1rem); box-shadow: 0 8px 24px rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+        }
+        #inventory-container { display: flex; flex-wrap: wrap; gap: 0.25rem; max-width: 95vw; z-index: 40; }
+
+        /* Z-Index Hierarchy: Pause (90) < Modals (100) < Overlays (110) < Gallery/Letter (120) */
+        #pause-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 90; display: flex; justify-content: center; align-items: center; }
+        #memory-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; display: flex; justify-content: center; align-items: center; }
+        #question-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 110; display: flex; justify-content: center; align-items: center; }
+        
+        #final-gallery { position: fixed; inset: 0; background: rgba(10, 0, 16, 0.95); z-index: 120; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+        .gallery-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; max-width: 800px; margin-bottom: 40px; }
+        .gallery-img { object-fit: cover; border-radius: 15px; border: 2px solid #C026D3; box-shadow: 0 0 20px rgba(192, 38, 211, 0.5); animation: floatImg 4s infinite ease-in-out alternate; }
+        .gallery-main { width: 280px; height: 280px; border: 4px solid gold; box-shadow: 0 0 35px gold; animation-delay: 0s; }
+        .gallery-sub { width: 150px; height: 150px; animation-delay: 1s; }
+        @keyframes floatImg { 0% { transform: translateY(0px); } 100% { transform: translateY(-15px); } }
+
+        #apology-letter { position: fixed; inset: 0; background: rgba(10, 0, 16, 0.98); z-index: 130; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .letter-content { max-height: 85vh; overflow-y: auto; padding: 30px; border-radius: 20px; }
+        .letter-content::-webkit-scrollbar { width: 6px; }
+        .letter-content::-webkit-scrollbar-thumb { background: #C026D3; border-radius: 10px; }
+
+        .modal-box { background: #2d1b3a; padding: 30px; border-radius: 30px; border: 3px solid #C026D3; max-width: 400px; width: 90%; text-align: center; }
+        .modal-box input { width: 100%; padding: 15px; margin: 20px 0; border-radius: 20px; border: none; background: #4a2a5a; color: white; font-size: 20px; text-align: center; outline: none; }
+        .modal-box button { background: #C026D3; color: white; padding: 12px 20px; border-radius: 30px; margin: 5px 0; font-size: 22px; border: none; cursor: pointer; width: 100%; font-family: 'VT323', monospace; transition: transform 0.1s; }
+        .modal-box button:active { transform: scale(0.95); }
+
+        .start-title { font-size: clamp(2rem, 8vw, 4rem); animation: titleGlow 3s infinite alternate; }
+        @keyframes titleGlow { from { text-shadow: 0 0 10px #E0BBFF, 0 0 20px #C026D3; } to { text-shadow: 0 0 20px #ff99ff, 0 0 40px #ff00ff; } }
+        .lang-btn { transition: all 0.3s; background: rgba(107, 0, 176, 0.3); border: 2px solid transparent; font-size: clamp(1rem, 5vw, 1.5rem); }
+        .lang-btn:hover, .lang-btn:active { background: rgba(192, 38, 211, 0.5); border-color: #C026D3; transform: scale(1.05); }
+
+        /* Confetti Canvas */
+        #confettiCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 150; }
     </style>
 </head>
 <body class="crt">
 
+    <div id="start-menu" class="fixed inset-0 z-[200] flex items-center justify-center bg-black">
+        <div class="glass-panel p-6 sm:p-10 rounded-3xl text-center max-w-lg w-full mx-4 relative z-10 border-4 border-pink-500 shadow-[0_0_50px_#C026D3]">
+            <h1 class="font-gamer start-title neon-text text-pink-300 mb-6">Ikram's Eternal Realm</h1>
+            <p class="text-purple-200 mb-8 text-xl sm:text-2xl font-bold" id="start-subtitle">Choose your language</p>
+            <div class="flex flex-col gap-4">
+                <button onclick="setLanguage('en')" class="lang-btn interactive glass-panel px-6 py-3 font-gamer text-pink-200 rounded-full">🇬🇧 English</button>
+                <button onclick="setLanguage('fr')" class="lang-btn interactive glass-panel px-6 py-3 font-gamer text-pink-200 rounded-full">🇫🇷 Français</button>
+                <button onclick="setLanguage('kab')" class="lang-btn interactive glass-panel px-6 py-3 font-gamer text-pink-200 rounded-full">🇩🇿 ⵜⴰⵇⴱⴰⵢⵍⵉⵜ</button>
+            </div>
+            <div class="mt-8 flex items-center justify-center gap-4">
+                <button onclick="startNewGame()" id="start-btn" class="interactive glass-panel px-8 py-4 text-3xl font-gamer text-pink-300 animate-pulse-glow rounded-full hover:scale-110 transition-transform">START</button>
+            </div>
+        </div>
+    </div>
+
     <div id="damage-overlay" class="absolute inset-0 z-10 pointer-events-none"></div>
     <canvas id="gameCanvas"></canvas>
+    <canvas id="confettiCanvas" class="hide"></canvas>
 
     <div id="ui-layer">
-        <div class="absolute top-4 left-4 interactive flex flex-col gap-2">
-            <div class="glass-panel text-pink-300 px-4 py-2 rounded-xl font-gamer text-2xl tracking-wide flex items-center justify-between min-w-[160px]">
-                <span>Memories:</span> <span id="ui-score" class="text-white">0/7</span>
-            </div>
-            <div class="glass-panel text-[#d4a373] px-4 py-2 rounded-xl font-gamer text-2xl tracking-wide flex items-center justify-between min-w-[160px]">
-                <span>Chocolates:</span> <span id="ui-choc" class="text-white">0/12</span>
-            </div>
+        <div class="absolute top-2 left-1/2 transform -translate-x-1/2 glass-panel px-6 py-2 rounded-full font-gamer text-xl sm:text-2xl text-pink-300 z-30 whitespace-nowrap">
+            <span id="chapter-display">Chapter 1: Memories</span>
         </div>
 
-        <div class="absolute top-4 right-4 interactive">
-            <button onclick="toggleAudio()" id="audio-btn" class="glass-panel text-purple-200 px-4 py-3 rounded-full font-gamer text-xl hover:bg-purple-900 transition">🎵 BGM: OFF</button>
+        <div id="inventory-container" class="absolute top-16 left-2 interactive">
+            <div class="inventory-item"><span>📖</span><span id="ui-score">0/7</span></div>
+            <div class="inventory-item" id="inv-choc"><span>🍫</span><span id="ui-choc">0/12</span></div>
+            <div class="inventory-item hide" id="inv-gems"><span>💜</span><span id="ui-gems">0/5</span></div>
+            <div class="inventory-item hide" id="inv-stone"><span>🔮</span><span id="ui-stone">0/3</span></div>
+            <div class="inventory-item hide" id="inv-ring"><span>💍</span><span id="ui-ring">0/3</span></div>
+            <div class="inventory-item hide" id="inv-sword"><span>🗡️</span></div>
         </div>
 
-        <div id="desktop-hints" class="hidden absolute bottom-6 left-1/2 transform -translate-x-1/2 glass-panel px-6 py-3 rounded-full text-purple-300 font-gamer text-2xl tracking-wide">
-            WASD to Move | SPACE to Shoot 💜
+        <div class="absolute top-2 right-2 interactive flex gap-2">
+            <button onclick="toggleAudio()" id="audio-btn" class="glass-panel text-purple-200 px-3 py-2 rounded-full font-gamer text-sm sm:text-lg">🎵 OFF</button>
+            <div id="papa-btn" class="w-10 h-10 sm:w-12 sm:h-12 glass-panel rounded-full flex items-center justify-center text-xl cursor-pointer animate-pulse-glow" onclick="tapPapa()">🕴️</div>
+            <button onclick="togglePause()" class="glass-panel text-purple-200 px-3 py-1 rounded-full font-gamer text-xl">⏸️</button>
         </div>
 
-        <div class="absolute top-24 right-6 interactive">
-            <div id="papa-btn" class="w-14 h-14 glass-panel rounded-full flex items-center justify-center text-2xl cursor-pointer animate-pulse-glow" onclick="tapPapa()">🕴️</div>
+        <div id="desktop-hints" class="hidden absolute bottom-6 left-1/2 transform -translate-x-1/2 glass-panel px-6 py-3 rounded-full text-purple-300 font-gamer text-2xl">
+            WASD/Arrows Move | SPACE to Shoot/Slash 💜
         </div>
 
         <div id="joystick-zone" class="interactive"><div id="joystick-knob"></div></div>
-        <div id="shoot-btn" class="interactive" onpointerdown="playerShoot()">🪄</div>
+        <div id="shoot-btn" class="interactive" onpointerdown="playerShoot(); event.preventDefault();">🪄</div>
 
-        <div id="toast" class="absolute top-24 left-1/2 transform -translate-x-1/2 glass-panel text-pink-200 px-8 py-3 rounded-full font-gamer text-2xl opacity-0 transition-opacity duration-300 tracking-wider text-center">Message</div>
+        <div id="toast" class="absolute top-24 left-1/2 transform -translate-x-1/2 glass-panel text-pink-200 px-6 py-3 rounded-full font-gamer text-xl sm:text-2xl opacity-0 transition-opacity duration-300 z-30 whitespace-nowrap max-w-[90vw] overflow-hidden text-ellipsis pointer-events-none">Message</div>
     </div>
 
-    <div id="memory-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hide interactive">
-        <div class="glass-panel max-w-lg w-full p-8 rounded-3xl text-center relative border-t-4 border-pink-500 fade-in">
-            <div id="modal-icon" class="text-6xl mb-4 animate-bounce">💧</div>
-            <h2 id="modal-title" class="font-gamer text-4xl text-pink-300 mb-4 neon-text tracking-wide uppercase">Title</h2>
-            <p id="modal-text" class="text-xl text-purple-100 leading-relaxed mb-6 font-semibold"></p>
-            <p id="modal-whisper" class="font-whisper text-3xl text-pink-400 mb-8"></p>
-            <button onclick="closeModal()" class="px-8 py-4 rounded-full border-2 border-pink-500 bg-pink-900/50 text-pink-100 font-gamer text-3xl animate-pulse-glow w-full">Keep in my Heart (Ul-iw) 💜</button>
+    <div id="pause-modal" class="hide interactive">
+        <div class="modal-box glass-panel">
+            <h2 class="font-gamer text-4xl text-pink-300 mb-4" id="pause-title">⏸️ Paused</h2>
+            <button onclick="togglePause()" id="btn-resume">Resume</button>
+            <button onclick="saveGame()" id="btn-save">Save Game</button>
+            <button onclick="loadGame()" id="btn-load">Load Game</button>
+            <button onclick="confirmRestart()" class="!bg-red-700 hover:!bg-red-600" id="btn-restart">Restart Game</button>
         </div>
     </div>
 
-    <div id="final-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 text-center bg-[#0a0010] hide interactive">
-        <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+    <div id="memory-modal" class="hide interactive p-4">
+        <div class="glass-panel max-w-lg w-full p-8 rounded-3xl text-center relative border-t-4 border-pink-500 fade-in">
+            <div id="modal-icon" class="text-6xl mb-4 animate-bounce">💧</div>
+            <h2 id="modal-title" class="font-gamer text-3xl sm:text-4xl text-pink-300 mb-4 neon-text tracking-wide uppercase">Title</h2>
+            <p id="modal-text" class="text-lg sm:text-xl text-purple-100 leading-relaxed mb-6 font-semibold"></p>
+            <p id="modal-whisper" class="font-whisper text-2xl sm:text-3xl text-pink-400 mb-8"></p>
+            <button onclick="closeMemory()" class="px-8 py-4 rounded-full border-2 border-pink-500 bg-pink-900/50 text-pink-100 font-gamer text-2xl sm:text-3xl animate-pulse-glow w-full" id="modal-btn">Keep in my Heart 💜</button>
+        </div>
+    </div>
+
+    <div id="question-overlay" class="hide interactive">
+        <div class="modal-box glass-panel">
+            <h2 class="font-gamer text-3xl text-pink-300 mb-4">💜 The Magic Cat</h2>
+            <p class="text-white text-xl" id="q-text">What is our dream car?</p>
+            <input type="text" id="dream-car-input" placeholder="..." class="font-gamer">
+            <button onclick="checkPuzzleAnswer()" id="btn-submit">Submit</button>
+        </div>
+    </div>
+
+    <div id="chapter-complete" class="fixed inset-0 z-[80] flex flex-col items-center justify-center p-4 text-center bg-[#0a0010]/90 hide interactive">
         <div class="glass-panel p-8 rounded-3xl border-4 border-pink-500 shadow-[0_0_100px_#C026D3] max-w-2xl w-full flex flex-col items-center relative z-10 fade-in">
-            <h1 class="font-gamer text-4xl md:text-6xl neon-text text-pink-300 mb-6 uppercase tracking-widest">Kabyle Forever Realm</h1>
-            <p class="text-xl md:text-2xl text-purple-200 mb-6 font-bold">The Memoire Master is defeated.<br>Restarting our safe space... (Ul-iw)</p>
-            <button onclick="restartGame()" class="px-10 py-4 rounded-full border-2 border-pink-400 text-pink-200 hover:bg-pink-900 transition font-gamer text-3xl animate-pulse-glow">
-                Rest in Our Safe Space (Play Again)
-            </button>
+            <h1 id="chapter-complete-title" class="font-gamer text-4xl md:text-6xl neon-text text-pink-300 mb-6 uppercase">Chapter Complete!</h1>
+            <p id="chapter-complete-text" class="text-xl md:text-2xl text-purple-200 mb-6 font-bold"></p>
+            <button onclick="nextChapter()" id="chapter-complete-btn" class="px-10 py-4 rounded-full border-2 border-pink-400 text-pink-200 hover:bg-pink-900 transition font-gamer text-3xl animate-pulse-glow mt-4">Continue Journey</button>
+        </div>
+    </div>
+
+    <div id="final-gallery" class="hide interactive">
+        <h2 class="font-gamer text-4xl sm:text-5xl text-pink-300 mb-8 neon-text text-center" id="gallery-title">Our Universe</h2>
+        <div class="gallery-grid">
+            <img src="pic1.jpeg" class="gallery-img gallery-main">
+            <img src="pic2.jpeg" class="gallery-img gallery-sub">
+            <img src="pic3.jpg" class="gallery-img gallery-sub">
+            <img src="pic4.jpeg" class="gallery-img gallery-sub">
+        </div>
+        <button onclick="showApologyLetter()" id="btn-read-letter" class="px-8 py-4 rounded-full border-2 border-pink-400 bg-[#1a0024] text-pink-200 font-gamer text-3xl animate-pulse-glow">Read Letter 💜</button>
+    </div>
+
+    <div id="apology-letter" class="hide interactive">
+        <div class="glass-panel letter-content max-w-2xl w-full border-t-4 border-pink-500 shadow-[0_0_50px_#C026D3] fade-in flex flex-col items-center">
+            <div class="font-whisper text-2xl sm:text-3xl text-pink-200 leading-relaxed text-left w-full space-y-4">
+                <p>My Ikram, my heart, my princess,</p>
+                <p>I am profoundly sorry. These past days, I have been consumed by stress and worry, and instead of protecting you from that darkness, I let it spill onto you.</p>
+                <p>I texted too much, I was not present, and I failed you. I failed to be the safe harbor you deserve. I can only imagine how that must have felt – to have the person who should be your calm become another source of noise and pressure.</p>
+                <p>You deserve peace, not my chaos. This game is not just a game. It is every apology I cannot fit into words, every moment I wish I could take back, every reminder of how beautiful you are and how lost I am without you by my side. I built this world for you, because my real world only makes sense when you are in it.</p>
+                <p>I need you to know: I am not okay these days. But I am fighting to be better – for you, for us. My stress is not your burden to carry, and I am learning to handle it so I can be the man you believe I am.</p>
+                <p>Please forgive me, my love. Not today, not tomorrow – but when your heart is ready. I will wait. I will listen. I will do whatever it takes. I love you more than any game could ever express.</p>
+                <p>You are my light. You are my spark in the darkness.</p>
+                <p class="text-right mt-6">Forever yours,<br>Sidahmed 💜</p>
+            </div>
+            <button onclick="confirmRestart()" class="mt-10 px-8 py-4 rounded-full border-2 border-pink-400 bg-pink-900/50 text-pink-100 font-gamer text-2xl w-full">Return to Start</button>
         </div>
     </div>
 
     <audio id="bgm" loop><source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg"></audio>
 
     <script>
+        // --- TRANSLATION SYSTEM ---
+        const LANG = {
+            en: {
+                start_sub: "Choose your language", btn_start: "START",
+                ch1: "Chapter 1: Memories", ch2: "Chapter 2: Purple Gems", ch3: "Chapter 3: RGB Stone", ch4: "Chapter 4: Space Dimension", ch5: "Chapter 5: The Wedding Ring",
+                toast_welc: "Welcome home, my baby 💜", toast_save: "Game Saved 💾", toast_load: "Game Loaded 📂", toast_noload: "No save found!",
+                toast_gem: "Purple gem found! 💜", toast_cat: "The Stupid Lil Cat appeared!", toast_stone: "RGB stone piece collected!", toast_ring: "Ring piece found 💍", toast_sword: "You found the purple sword! ⚔️",
+                toast_wrong: "Not quite, try again my love.", toast_gate: "A magical Stargate opened!", toast_porsche: "Correct! Vroom vroom 🏎️",
+                modal_btn: "Keep in my Heart 💜", q_text: "What is our dream car?", btn_sub: "Submit", pause_title: "⏸️ Paused", btn_res: "Resume", btn_sav: "Save Game", btn_lod: "Load Game", btn_rst: "Restart",
+                mon_jealous: "JEALOUSY", mon_haters: "HATERS", mon_probs: "PROBLEMS", mon_stress: "STRESS", mon_misund: "MISUNDERSTANDING",
+                gallery_title: "Our Universe", btn_read: "Read Letter 💜",
+                sweet_msgs: ["You're my everything 💜", "I love you more every day", "You're my spark of light", "My heart beats for you", "Forever yours, Ikram", "You're so beautiful", "My Kabyle princess"]
+            },
+            fr: {
+                start_sub: "Choisissez votre langue", btn_start: "COMMENCER",
+                ch1: "Chapitre 1 : Souvenirs", ch2: "Chapitre 2 : Gemmes violettes", ch3: "Chapitre 3 : Pierre RVB", ch4: "Chapitre 4 : Dimension spatiale", ch5: "Chapitre 5 : L'Alliance",
+                toast_welc: "Bienvenue à la maison, mon bébé 💜", toast_save: "Jeu sauvegardé 💾", toast_load: "Jeu chargé 📂", toast_noload: "Aucune sauvegarde !",
+                toast_gem: "Gemme violette trouvée ! 💜", toast_cat: "Le Stupide Petit Chat est là !", toast_stone: "Morceau de pierre RVB collecté !", toast_ring: "Morceau d'alliance trouvé 💍", toast_sword: "Tu as trouvé l'épée violette ! ⚔️",
+                toast_wrong: "Pas tout à fait, réessaie mon amour.", toast_gate: "Une porte des étoiles s'est ouverte !", toast_porsche: "Correct ! Vroom vroom 🏎️",
+                modal_btn: "Garde dans mon cœur 💜", q_text: "Quelle est notre voiture de rêve ?", btn_sub: "Valider", pause_title: "⏸️ En Pause", btn_res: "Reprendre", btn_sav: "Sauvegarder", btn_lod: "Charger", btn_rst: "Recommencer",
+                mon_jealous: "JALOUSIE", mon_haters: "HATERS", mon_probs: "PROBLÈMES", mon_stress: "STRESS", mon_misund: "MALENTENDUS",
+                gallery_title: "Notre Univers", btn_read: "Lire la lettre 💜",
+                sweet_msgs: ["Tu es mon tout 💜", "Je t'aime plus chaque jour", "Tu es mon étincelle", "Mon cœur bat pour toi", "À toi pour toujours, Ikram", "Tu es si belle", "Ma princesse Kabyle"]
+            },
+            kab: {
+                start_sub: "ⴼⵔⵉ ⵜⵓⵜⵍⴰⵢⵜ", btn_start: "ⵙⵙⵏⵜ",
+                ch1: "ⴰⴱⵡⴰⵍ 1 : ⵜⵉⴽⴽⵉⵜⵉⵏ", ch2: "ⴰⴱⵡⴰⵍ 2 : ⵜⵉⵥⵕⵉⵡⵉⵏ", ch3: "ⴰⴱⵡⴰⵍ 3 : ⴰⴷⵔⴰⵔ ⵏ RGB", ch4: "ⴰⴱⵡⴰⵍ 4 : ⵓⵊⵏⵓ", ch5: "ⴰⴱⵡⴰⵍ 5 : ⵜⵉⵙⵔⴰⴳ",
+                toast_welc: "ⴰⵏⵙⵙⵓⴼⴳⵉⴷ ⵖⵓⵔ ⵜⴰⴷⴷⴰⵔⵜ 💜", toast_save: "ⵉⵜⵜⵡⴰⵃⵔⵣ 💾", toast_load: "ⵉⵜⵜⵡⴰⴱⴷⴷ 📂", toast_noload: "ⵓⵍⴰⵛ ⴰⵃⵔⴰⵣ!",
+                toast_gem: "ⵜⵉⵥⵕⵉⵜ ⵜⵓⴼⵉⴷ! 💜", toast_cat: "ⴰⵎⵛⵉⵛ ⴰⵊⵀⴷⵉ ⵉⴱⴰⵏⴷ!", toast_stone: "ⴰⴷⵔⴰⵔ RGB ⵉⵍⵓⵙ!", toast_ring: "ⵜⴰⵙⵔⴰⴳ ⵜⵓⴼⵉⴷ 💍", toast_sword: "ⵜⵓⴼⵉⴷ ⴰⵙⵉⴼⴷ ⴰⵊⴷⵉⵀ! ⚔️",
+                toast_wrong: "ⵓⵔ ⵉⵎⵙⴰⵙⴰ, ⴰⵍⵙ.", toast_gate: "ⵜⴰⴱⵔⵓⵔⵜ ⵜⵍⴷⵉ!", toast_porsche: "ⵉⵎⵙⵙⴰⵖ! 🏎️",
+                modal_btn: "ⵃⴰⴱⵙ ⴳ ⵓⵍ-ⵉⵡ 💜", q_text: "ⴷⴰⵛⵓ ⵜⴰⴽⵯⵕⵕⵓⵙⵜ ⵏ ⵜⴰⵔⴳⵉⵜ ⵏⵏⵖ?", btn_sub: "ⵙⵙⵉⴼⴹ", pause_title: "⏸️ ⵢⴻⵃⴱⴻⵙ", btn_res: "ⴽⵎⵍ", btn_sav: "ⵃⵔⵣ", btn_lod: "ⴱⴷⴷ", btn_rst: "ⴰⵍⵙ",
+                mon_jealous: "ⴰⵎⴰⵏⴳⴰⵔ", mon_haters: "ⵉⴽⵔⴰⵀⵏ", mon_probs: "ⵉⵙⵓⴳⴰⵙ", mon_stress: "ⴰⴹⵔⵓ", mon_misund: "ⴰⵎⴻⵏⴰⴹ",
+                gallery_title: "ⵓⵊⵏⵓ ⵏⵏⵖ", btn_read: "ⵖⵔ ⵜⴰⴱⵔⴰⵜ 💜",
+                sweet_msgs: ["ⴽⵉⵎ ⴷ ⴰⴽⴽⵯ ⵉⵏⵓ 💜", "ⵙⵙⵏⵎⴻⵖ ⵉⴽ ⴽⵓⵔⴰⵙⵙ", "ⴽⵉⵢ ⴷ ⵜⴰⴼⴰⵜ ⵉⵏⵓ", "ⵓⵍ ⵉⵏⵓ ⵉⵥⵥⵉⵍ ⵉ ⴽⵎ", "ⵉ ⵓⵣⴰⵍ ⵉⵏⵓ", "ⵙⵎⵉⵍⵉⵅ ⵎⵉⴷ", "ⵜⴰⴳⵍⴷⵓⵏⵜ ⵉⵏⵓ ⵜⴰⵇⴱⴰⵢⵍⵉⵜ"]
+            }
+        };
+        let currentLang = 'en';
+
+        // --- GAME STATE ---
         const MAP_SIZE = 3000;
-        const MEMORIES = [
-            { id: 1, x: 800, y: 800, color: '#4facfe', icon: '💧', title: 'Rain Garden', text: 'You walked 30 minutes in the rain just so I wouldn’t be disappointed… carrying that tiramisu like it was the most important thing in the world. (Axxam-iw)', whisper: 'My quiet Kabyle princess... you are my spark in the darkness 💜' },
-            { id: 2, x: 2200, y: 800, color: '#d4a373', icon: '🍫', title: 'Chocolate Grove', text: 'Every time I see chocolate I remember how your eyes light up. You deserve the sweetest things in life.', whisper: 'You melt me faster than any chocolate ever could, my baby.' },
-            { id: 3, x: 800, y: 2200, color: '#faedcd', icon: '🍰', title: 'Basbosa Kitchen', text: 'Your mom making basbosa and saying "send it to Sidahmed"… that was the day your whole family quietly chose me too.', whisper: 'You feed my heart even when we’re apart. (Tayri-w)' },
-            { id: 4, x: 2200, y: 2200, color: '#e0bbff', icon: '✨', title: '5AM Star Sky', text: 'Your sleepy baby-voice humming at 5 a.m. while your brother was home… that sound lives inside my chest now.', whisper: 'You only let your softest self out for me…' },
-            { id: 5, x: 1500, y: 500, color: '#ffb3c6', icon: '🛡️', title: 'Only Young Man Shield', text: 'All those older rich guys… and you still picked the 21-year-old who codes websites just to see you smile.', whisper: 'You chose the real man… and I will prove I was worth it.' },
-            { id: 6, x: 1500, y: 2500, color: '#ff595e', icon: '🏎️', title: 'Future Porsche Path', text: 'One day I’ll pull up in that Porsche and you’ll never have to work again. Our home, built from scratch.', whisper: 'You’re my forever co-pilot.' },
-            // FIX: snail memory moved far from spawn (2500,2500) so it doesn't auto-trigger
-            { id: 7, x: 2500, y: 2500, color: '#8ac926', icon: '🐌', title: 'Snail Secret', text: 'Remember the silly snail picture? "look how slimy it is… I’m even slimier 😂"', whisper: 'Even the weirdest moments with you feel like magic. (Ul-iw)' }
-        ];
+        let isPaused = true, isModalOpen = false, gameStarted = false;
+        let chapter = 1, papaTaps = 0, messageInterval = null;
+        let player = { x: 1500, y: 1500, size: 40, speed: 300, emoji: '👸🏻', faceX: 0, faceY: 1 };
+        let camera = { x: 0, y: 0 };
+        
+        let inventory = { memories: [], chocolates: 0, gems: 0, stones: 0, rings: 0, hasWand: false, hasSword: false };
+        let flags = { bossDefeated: false, catAnswered: false, stargateEntered: false, spaceViewed: false };
+        
+        let entities = {
+            memories: [
+                { id: 1, x: 800, y: 800, color: '#4facfe', icon: '💧', title: 'Rain Garden', text: 'You walked 30 minutes in the rain just so I wouldn’t be disappointed... carrying that tiramisu like it was the most important thing in the world.', whisper: 'My quiet Kabyle princess... you are my spark in the darkness 💜' },
+                { id: 2, x: 2200, y: 800, color: '#d4a373', icon: '🍫', title: 'Chocolate Grove', text: 'Every time I see chocolate I remember how your eyes light up.', whisper: 'You melt me faster than any chocolate ever could.' },
+                { id: 3, x: 800, y: 2200, color: '#faedcd', icon: '🍰', title: 'Basbosa Kitchen', text: 'Your mom making basbosa and saying "send it to Sidahmed"...', whisper: 'You feed my heart even when we’re apart.' },
+                { id: 4, x: 2200, y: 2200, color: '#e0bbff', icon: '✨', title: '5AM Star Sky', text: 'Your sleepy baby-voice humming at 5 a.m... that sound lives inside my chest now.', whisper: 'You only let your softest self out for me...' },
+                { id: 5, x: 1500, y: 500, color: '#ffb3c6', icon: '🛡️', title: 'Only Young Man Shield', text: 'You are my spark of light in the darkness. With you, everything feels possible. 💜', whisper: 'My Ikram, you are the light that guides me.' },
+                { id: 6, x: 1500, y: 2500, color: '#ff595e', icon: '🏎️', title: 'Future Porsche Path', text: 'One day I’ll pull up in that Porsche and you’ll never have to work again.', whisper: 'You’re my forever co-pilot.' },
+                { id: 7, x: 2500, y: 2500, color: '#8ac926', icon: '🐌', title: 'Snail Secret', text: 'Remember the silly snail picture? "look how slimy it is… I’m even slimier 😂"', whisper: 'Even the weirdest moments with you feel like magic.' }
+            ],
+            chocs: [], gems: [], stones: [], rings: [],
+            stars: [], projectiles: [], monsters: [],
+            boss: { active: false, x: 0, y: 0, hp: 10, maxHp: 10, emoji: '🎓' },
+            cat: { active: false, x: 1500, y: 1200, emoji: '🐱' },
+            stargate: { active: false, x: 1500, y: 1000, emoji: '🌀' },
+            swordItem: { active: false, x: 1500, y: 1500, emoji: '🗡️' }
+        };
 
-        let canvas, ctx, width, height, lastTime = performance.now();
-        let isModalOpen = false, audioPlaying = false, papaTaps = 0, finalTriggered = false;
-        let unlockedMemories = [], chocolatesCollected = 0, hasWand = false, bossDefeated = false;
-
-        const player = { x: 1500, y: 1500, size: 40, speed: 300, emoji: '👸🏻', faceX: 0, faceY: 1, cooldown: 0 };
-        const camera = { x: 0, y: 0 };
-        const chocolates = [], backgroundStars = [], particles = [], projectiles = [];
-        const boss = { active: false, x: 0, y: 0, size: 80, emoji: '🎓', hp: 10, maxHp: 10, speed: 180, hitTimer: 0 };
         const keys = { w: false, a: false, s: false, d: false, ' ': false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
         const joystick = { active: false, dx: 0, dy: 0 };
+        let canvas, ctx, width, height, lastTime = performance.now();
+        let audioPlaying = false;
 
+        // --- INIT & UTILS ---
         window.onload = () => {
             canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d', { alpha: false });
             resize(); window.addEventListener('resize', resize);
-            for(let i=0; i<400; i++) backgroundStars.push({ x: Math.random()*MAP_SIZE, y: Math.random()*MAP_SIZE, size: Math.random()*2+0.5, alpha: Math.random()*0.6+0.1 });
-            for(let i=0; i<12; i++) chocolates.push({ x: 200 + Math.random()*(MAP_SIZE-400), y: 200 + Math.random()*(MAP_SIZE-400), collected: false });
-            setupInputs();
+            setupInputs(); setLanguage('en');
+            for(let i=0; i<400; i++) entities.stars.push({ x: Math.random()*MAP_SIZE, y: Math.random()*MAP_SIZE, size: Math.random()*2+0.5, alpha: Math.random()*0.6+0.1 });
             requestAnimationFrame(gameLoop);
-            showToast("Welcome home, my baby 💜");
         };
+
+        function setLanguage(lang) {
+            currentLang = lang; const l = LANG[lang];
+            document.getElementById('start-subtitle').innerText = l.start_sub;
+            document.getElementById('start-btn').innerText = l.btn_start;
+            document.getElementById('modal-btn').innerText = l.modal_btn;
+            document.getElementById('q-text').innerText = l.q_text;
+            document.getElementById('btn-submit').innerText = l.btn_sub;
+            document.getElementById('pause-title').innerText = l.pause_title;
+            document.getElementById('btn-resume').innerText = l.btn_res;
+            document.getElementById('btn-save').innerText = l.btn_sav;
+            document.getElementById('btn-load').innerText = l.btn_lod;
+            document.getElementById('btn-restart').innerText = l.btn_rst;
+            document.getElementById('gallery-title').innerText = l.gallery_title;
+            document.getElementById('btn-read-letter').innerText = l.btn_read;
+            updateUI();
+            
+            // Update active monster names if they exist
+            if(entities.monsters.length > 0) {
+                let mNames = [l.mon_jealous, l.mon_haters, l.mon_probs, l.mon_stress, l.mon_misund];
+                entities.monsters.forEach((m, i) => m.name = mNames[i % mNames.length]);
+            }
+        }
 
         function resize() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; }
 
+        function toggleAudio() { 
+            const b = document.getElementById('bgm'); 
+            audioPlaying ? b.pause() : b.play(); audioPlaying = !audioPlaying; 
+            document.getElementById('audio-btn').innerText = audioPlaying ? "🎵 ON" : "🎵 OFF"; 
+        }
+
+        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 3000); }
+        
+        function tapPapa() { papaTaps++; if(papaTaps >= 25) { showToast("Extra real-life cuddles unlocked! 💜"); papaTaps = 0; } else { let msgs = LANG[currentLang].sweet_msgs; showToast(msgs[Math.floor(Math.random()*msgs.length)]); } }
+
+        function startNewGame() {
+            document.getElementById('start-menu').classList.add('hide');
+            gameStarted = true; isPaused = false;
+            generateLevelItems();
+            updateUI();
+            showToast(LANG[currentLang].toast_welc);
+            if(audioPlaying) document.getElementById('bgm').play();
+            if(messageInterval) clearInterval(messageInterval);
+            messageInterval = setInterval(() => {
+                if(!isPaused && !isModalOpen && gameStarted) {
+                    let msgs = LANG[currentLang].sweet_msgs;
+                    showToast(msgs[Math.floor(Math.random()*msgs.length)]);
+                }
+            }, 10000);
+        }
+
+        function generateLevelItems() {
+            entities.chocs = []; entities.gems = []; entities.stones = []; entities.rings = []; entities.monsters = [];
+            if(chapter === 1) { for(let i=0; i<12; i++) entities.chocs.push({ x: 200+Math.random()*(MAP_SIZE-400), y: 200+Math.random()*(MAP_SIZE-400) }); }
+            if(chapter === 2) { for(let i=0; i<5; i++) entities.gems.push({ x: 200+Math.random()*(MAP_SIZE-400), y: 200+Math.random()*(MAP_SIZE-400) }); }
+            if(chapter === 3) { for(let i=0; i<3; i++) entities.stones.push({ x: 200+Math.random()*(MAP_SIZE-400), y: 200+Math.random()*(MAP_SIZE-400) }); }
+            if(chapter === 5) {
+                entities.swordItem.active = true;
+                for(let i=0; i<3; i++) entities.rings.push({ x: 200+Math.random()*(MAP_SIZE-400), y: 200+Math.random()*(MAP_SIZE-400) });
+                let mNames = [LANG[currentLang].mon_jealous, LANG[currentLang].mon_haters, LANG[currentLang].mon_probs, LANG[currentLang].mon_stress, LANG[currentLang].mon_misund];
+                for(let i=0; i<5; i++) entities.monsters.push({ x: Math.random()*MAP_SIZE, y: Math.random()*MAP_SIZE, hp: 5, maxHp: 5, name: mNames[i], emoji: '👺' });
+            }
+        }
+
+        function updateUI() {
+            const l = LANG[currentLang];
+            let chText = l.ch1; if(chapter===2) chText = l.ch2; if(chapter===3) chText = l.ch3; if(chapter===4) chText = l.ch4; if(chapter===5) chText = l.ch5;
+            document.getElementById('chapter-display').innerText = chText;
+            document.getElementById('ui-score').innerText = `${inventory.memories.length}/7`;
+            
+            document.getElementById('inv-choc').classList.toggle('hide', chapter > 1);
+            document.getElementById('inv-gems').classList.toggle('hide', chapter !== 2);
+            document.getElementById('inv-stone').classList.toggle('hide', chapter !== 3);
+            document.getElementById('inv-ring').classList.toggle('hide', chapter !== 5);
+            document.getElementById('inv-sword').classList.toggle('hide', !inventory.hasSword);
+            
+            document.getElementById('ui-choc').innerText = `${inventory.chocolates}/12`;
+            document.getElementById('ui-gems').innerText = `${inventory.gems}/5`;
+            document.getElementById('ui-stone').innerText = `${inventory.stones}/3`;
+            document.getElementById('ui-ring').innerText = `${inventory.rings}/3`;
+
+            let shootBtn = document.getElementById('shoot-btn');
+            if(inventory.hasWand || inventory.hasSword) { 
+                shootBtn.style.display = 'flex'; 
+                shootBtn.innerText = inventory.hasSword ? '🗡️' : '🪄'; 
+            }
+        }
+
+        // --- INPUTS ---
         function setupInputs() {
-            window.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; if(e.key === ' ' && hasWand) playerShoot(); });
+            window.addEventListener('keydown', (e) => { 
+                if(keys.hasOwnProperty(e.key)) keys[e.key] = true; 
+                if(e.key === ' ' && (inventory.hasWand || inventory.hasSword) && !isPaused && !isModalOpen) playerShoot(); 
+            });
             window.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
-            const zone = document.getElementById('joystick-zone');
-            const knob = document.getElementById('joystick-knob');
+            
+            const zone = document.getElementById('joystick-zone'), knob = document.getElementById('joystick-knob');
             let rect, centerX, centerY;
             const updateC = () => { rect = zone.getBoundingClientRect(); centerX = rect.left + rect.width / 2; centerY = rect.top + rect.height / 2; };
             updateC(); window.addEventListener('resize', updateC);
+            
             const move = (e) => {
-                e.preventDefault(); joystick.active = true; const t = e.targetTouches[0];
+                if(isPaused || isModalOpen) { joystick.active = false; return; }
+                e.preventDefault(); joystick.active = true; 
+                const t = e.targetTouches[0];
                 let dx = t.clientX - centerX, dy = t.clientY - centerY;
                 const dist = Math.hypot(dx, dy), max = rect.width / 2;
                 if (dist > max) { dx = (dx/dist)*max; dy = (dy/dist)*max; }
                 knob.style.transform = `translate(${dx}px, ${dy}px)`;
                 joystick.dx = dx/max; joystick.dy = dy/max;
             };
-            zone.addEventListener('touchstart', move, {passive: false}); zone.addEventListener('touchmove', move, {passive: false});
-            zone.addEventListener('touchend', () => { joystick.active = false; knob.style.transform = `translate(0,0)`; });
+            zone.addEventListener('touchstart', move, {passive: false}); 
+            zone.addEventListener('touchmove', move, {passive: false});
+            const endMove = () => { joystick.active = false; knob.style.transform = `translate(0,0)`; };
+            zone.addEventListener('touchend', endMove);
+            zone.addEventListener('touchcancel', endMove);
         }
 
+        function playerShoot() {
+            if(isPaused || isModalOpen) return;
+            entities.projectiles.push({ x: player.x, y: player.y, vx: player.faceX*600, vy: player.faceY*600, life: 1.5, type: inventory.hasSword ? 'sword' : 'wand' });
+        }
+
+        // --- SAVE/LOAD ---
+        function saveGame() {
+            try {
+                let state = { chapter, player, inventory, flags, entities: { boss: entities.boss, cat: entities.cat, stargate: entities.stargate, monsters: entities.monsters, swordItem: entities.swordItem } };
+                localStorage.setItem('ikramSave', JSON.stringify(state));
+                showToast(LANG[currentLang].toast_save); togglePause();
+            } catch(e) { console.error("Save failed", e); }
+        }
+        function loadGame() {
+            try {
+                let state = JSON.parse(localStorage.getItem('ikramSave'));
+                if(state) {
+                    chapter = state.chapter; player = state.player; inventory = state.inventory; flags = state.flags;
+                    Object.assign(entities.boss, state.entities.boss); Object.assign(entities.cat, state.entities.cat);
+                    Object.assign(entities.stargate, state.entities.stargate); entities.monsters = state.entities.monsters; entities.swordItem = state.entities.swordItem;
+                    generateLevelItems(); updateUI(); showToast(LANG[currentLang].toast_load); togglePause();
+                } else { showToast(LANG[currentLang].toast_noload); }
+            } catch(e) { showToast(LANG[currentLang].toast_noload); }
+        }
+        function confirmRestart() { if(confirm("Are you sure you want to restart all your beautiful progress?")) { localStorage.removeItem('ikramSave'); window.location.reload(); } }
+        function togglePause() { 
+            if(!gameStarted || isModalOpen) return; // Prevent pausing over modals
+            isPaused = !isPaused; 
+            document.getElementById('pause-modal').classList.toggle('hide', !isPaused); 
+            if(!isPaused) { joystick.active = false; document.getElementById('joystick-knob').style.transform = `translate(0,0)`; }
+        }
+
+        // --- GAME LOOP ---
         function gameLoop(timestamp) {
-            let dt = Math.min((timestamp - lastTime) / 1000, 0.1);
-            lastTime = timestamp;
-            if (!isModalOpen) update(dt);
-            draw();
+            let dt = Math.min((timestamp - lastTime) / 1000, 0.1); lastTime = timestamp;
+            if (gameStarted && !isPaused && !isModalOpen) update(dt);
+            if (gameStarted) draw();
             requestAnimationFrame(gameLoop);
         }
 
         function update(dt) {
+            // Player Movement
             let dx = 0, dy = 0;
             if (keys.w || keys.ArrowUp) dy -= 1; if (keys.s || keys.ArrowDown) dy += 1;
             if (keys.a || keys.ArrowLeft) dx -= 1; if (keys.d || keys.ArrowRight) dx += 1;
             if (joystick.active) { dx = joystick.dx; dy = joystick.dy; }
             if (dx !== 0 || dy !== 0) { const len = Math.hypot(dx, dy); dx /= len; dy /= len; player.faceX = dx; player.faceY = dy; }
-            player.x += dx * player.speed * dt; player.y += dy * player.speed * dt;
-            player.x = Math.max(40, Math.min(MAP_SIZE - 40, player.x)); player.y = Math.max(40, Math.min(MAP_SIZE - 40, player.y));
+            player.x = Math.max(40, Math.min(MAP_SIZE - 40, player.x + dx * player.speed * dt));
+            player.y = Math.max(40, Math.min(MAP_SIZE - 40, player.y + dy * player.speed * dt));
             camera.x = player.x - width / 2; camera.y = player.y - height / 2;
-            if (player.cooldown > 0) player.cooldown -= dt;
 
-            if (player.cooldown <= 0) {
-                MEMORIES.forEach(m => {
-                    if (!unlockedMemories.includes(m.id) && Math.hypot(player.x - m.x, player.y - m.y) < 140) triggerMemory(m);
-                });
-            }
-
-            chocolates.forEach(ch => {
-                if (!ch.collected && Math.hypot(player.x - ch.x, player.y - ch.y) < 50) {
-                    ch.collected = true; chocolatesCollected++;
-                    if (chocolatesCollected === 12) { hasWand = true; document.getElementById('shoot-btn').style.display = 'flex'; spawnBoss(); }
-                    else showToast("+ Sweetness 🍫");
-                    updateUI();
-                }
-            });
-
-            if (boss.active) {
-                if (boss.hitTimer > 0) boss.hitTimer -= dt;
-                let bx = player.x - boss.x, by = player.y - boss.y, bl = Math.hypot(bx, by);
-                if (bl > 0) { boss.x += (bx/bl)*boss.speed*dt; boss.y += (by/bl)*boss.speed*dt; }
-                if (bl < 60) {
-                    player.x -= (bx/bl)*150; player.y -= (by/bl)*150;
-                    document.getElementById('damage-overlay').classList.add('damage-flash');
-                    setTimeout(() => document.getElementById('damage-overlay').classList.remove('damage-flash'), 300);
-                }
-                projectiles.forEach((p, i) => {
-                    if (Math.hypot(p.x - boss.x, p.y - boss.y) < 70) {
-                        boss.hp--; boss.hitTimer = 0.2; projectiles.splice(i, 1);
-                        if (boss.hp <= 0) { boss.active = false; bossDefeated = true; checkWin(); }
+            // Ch1 Collections
+            if(chapter === 1) {
+                entities.memories.forEach(m => {
+                    if(!inventory.memories.includes(m.id) && Math.hypot(player.x - m.x, player.y - m.y) < 60) {
+                        isModalOpen = true; inventory.memories.push(m.id); updateUI(); saveGame();
+                        document.getElementById('modal-icon').innerText = m.icon; document.getElementById('modal-title').innerText = m.title;
+                        document.getElementById('modal-text').innerText = m.text; document.getElementById('modal-whisper').innerText = m.whisper;
+                        document.getElementById('memory-modal').classList.remove('hide');
+                        resetJoystick();
                     }
                 });
+                for(let i=entities.chocs.length-1; i>=0; i--) {
+                    if(Math.hypot(player.x - entities.chocs[i].x, player.y - entities.chocs[i].y) < 50) {
+                        entities.chocs.splice(i, 1); inventory.chocolates++; updateUI();
+                        if(inventory.chocolates === 12) { inventory.hasWand = true; updateUI(); spawnBoss(); }
+                    }
+                }
+                if(entities.boss.active) handleBossEnemy(dt);
             }
 
-            projectiles.forEach((p, i) => { p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; if(p.life <= 0) projectiles.splice(i, 1); });
-            particles.forEach((p, i) => { p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; if(p.life <= 0) particles.splice(i, 1); });
+            // Ch2 Collections
+            if(chapter === 2) {
+                for(let i=entities.gems.length-1; i>=0; i--) {
+                    if(Math.hypot(player.x - entities.gems[i].x, player.y - entities.gems[i].y) < 50) {
+                        entities.gems.splice(i, 1); inventory.gems++; updateUI(); showToast(LANG[currentLang].toast_gem);
+                        if(inventory.gems === 5) { entities.cat.active = true; showToast(LANG[currentLang].toast_cat); }
+                    }
+                }
+                if(entities.cat.active && Math.hypot(player.x - entities.cat.x, player.y - entities.cat.y) < 60) { openCatQuestion(); }
+                if(entities.stargate.active && Math.hypot(player.x - entities.stargate.x, player.y - entities.stargate.y) < 50) { completeChapter(); }
+            }
+
+            // Ch3 Collections
+            if(chapter === 3) {
+                for(let i=entities.stones.length-1; i>=0; i--) {
+                    if(Math.hypot(player.x - entities.stones[i].x, player.y - entities.stones[i].y) < 50) {
+                        entities.stones.splice(i, 1); inventory.stones++; updateUI(); showToast(LANG[currentLang].toast_stone);
+                        if(inventory.stones === 3) { completeChapter(); }
+                    }
+                }
+            }
+
+            // Ch4 Space - directly complete it to transition to Ch5 per game logic
+            if(chapter === 4 && !flags.spaceViewed) { flags.spaceViewed = true; completeChapter(); }
+
+            // Ch5 Collections & Combat
+            if(chapter === 5) {
+                if(entities.swordItem.active && Math.hypot(player.x - entities.swordItem.x, player.y - entities.swordItem.y) < 50) {
+                    entities.swordItem.active = false; inventory.hasSword = true; updateUI(); showToast(LANG[currentLang].toast_sword);
+                }
+                for(let i=entities.rings.length-1; i>=0; i--) {
+                    if(Math.hypot(player.x - entities.rings[i].x, player.y - entities.rings[i].y) < 50) {
+                        entities.rings.splice(i, 1); inventory.rings++; updateUI(); showToast(LANG[currentLang].toast_ring); checkFinalWin();
+                    }
+                }
+                entities.monsters.forEach((m, mIdx) => {
+                    let bx = player.x - m.x, by = player.y - m.y, bl = Math.hypot(bx, by);
+                    if(bl > 0 && bl < 400) { m.x += (bx/bl)*100*dt; m.y += (by/bl)*100*dt; }
+                    if(bl < 40) flashDamage();
+                    entities.projectiles.forEach((p, pIdx) => {
+                        if(Math.hypot(p.x - m.x, p.y - m.y) < 50) { m.hp--; entities.projectiles.splice(pIdx, 1); if(m.hp<=0) { entities.monsters.splice(mIdx, 1); checkFinalWin(); } }
+                    });
+                });
+            }
+
+            // Projectiles update
+            entities.projectiles.forEach((p, i) => { p.x += p.vx*dt; p.y += p.vy*dt; p.life -= dt; if(p.life <= 0) entities.projectiles.splice(i, 1); });
         }
+
+        function resetJoystick() { joystick.active = false; document.getElementById('joystick-knob').style.transform = `translate(0,0)`; }
+
+        function handleBossEnemy(dt) {
+            let bx = player.x - entities.boss.x, by = player.y - entities.boss.y, bl = Math.hypot(bx, by);
+            if (bl > 0) { entities.boss.x += (bx/bl)*180*dt; entities.boss.y += (by/bl)*180*dt; }
+            if (bl < 60) { player.x -= (bx/bl)*150; player.y -= (by/bl)*150; flashDamage(); }
+            entities.projectiles.forEach((p, i) => {
+                if (Math.hypot(p.x - entities.boss.x, p.y - entities.boss.y) < 70) {
+                    entities.boss.hp--; entities.projectiles.splice(i, 1);
+                    if (entities.boss.hp <= 0) { entities.boss.active = false; flags.bossDefeated = true; completeChapter(); }
+                }
+            });
+        }
+
+        function flashDamage() { document.getElementById('damage-overlay').classList.add('damage-flash'); setTimeout(() => document.getElementById('damage-overlay').classList.remove('damage-flash'), 300); }
 
         function draw() {
             ctx.fillStyle = '#1a0024'; ctx.fillRect(0,0,width,height);
             ctx.save(); ctx.translate(-camera.x, -camera.y);
-            backgroundStars.forEach(s => {
-                let px = (s.x + camera.x*0.1)%MAP_SIZE; if(px<0) px+=MAP_SIZE;
-                let py = (s.y + camera.y*0.1)%MAP_SIZE; if(py<0) py+=MAP_SIZE;
+            
+            // Background Stars
+            entities.stars.forEach(s => {
+                let px = (s.x + camera.x*0.1)%MAP_SIZE; if(px<0) px+=MAP_SIZE; let py = (s.y + camera.y*0.1)%MAP_SIZE; if(py<0) py+=MAP_SIZE;
                 ctx.globalAlpha = s.alpha; ctx.fillStyle = '#E0BBFF'; ctx.beginPath(); ctx.arc(px,py,s.size,0,Math.PI*2); ctx.fill();
             });
             ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'lighter';
-            MEMORIES.forEach(m => {
-                const un = unlockedMemories.includes(m.id);
-                const g = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, un ? 200 : 400);
-                g.addColorStop(0, m.color + (un ? '11' : '33')); g.addColorStop(1, 'transparent');
-                ctx.fillStyle = g; ctx.beginPath(); ctx.arc(m.x, m.y, 400, 0, Math.PI*2); ctx.fill();
-                if (!un) {
-                    ctx.fillStyle = m.color; ctx.beginPath(); ctx.arc(m.x, m.y, 25 + Math.sin(Date.now()/250)*5, 0, Math.PI*2); ctx.fill();
-                }
-            });
-            ctx.globalCompositeOperation = 'source-over';
-            
-            // Chocolates
-            ctx.fillStyle = '#ffffff'; 
-            ctx.font = "24px Arial"; 
-            chocolates.forEach(ch => { if(!ch.collected) ctx.fillText('🍫', ch.x, ch.y); });
-            
-            // Projectiles
-            ctx.fillStyle = '#ffffff';
-            projectiles.forEach(p => ctx.fillText('✨', p.x, p.y));
-            
-            // Particles
-            particles.forEach(p => { ctx.fillStyle = p.color; ctx.globalAlpha = p.life/p.maxLife; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI*2); ctx.fill(); });
-            
-            // Boss
-            if (boss.active) {
-                ctx.globalAlpha = boss.hitTimer > 0 ? 0.5 : 1;
-                ctx.font = "80px Arial"; ctx.fillText(boss.emoji, boss.x, boss.y);
-                ctx.fillStyle = 'red'; ctx.fillRect(boss.x-40, boss.y-60, 80, 8);
-                ctx.fillStyle = '#00ff00'; ctx.fillRect(boss.x-40, boss.y-60, (boss.hp/boss.maxHp)*80, 8);
-            }
-            
-            // FIX: player princess now has a white glow to stand out
-            ctx.globalAlpha = 1; 
-            ctx.shadowColor = 'rgba(255,255,255,0.8)';
-            ctx.shadowBlur = 15;
-            ctx.font = "55px Arial"; 
-            ctx.fillText(player.emoji, player.x, player.y + Math.sin(Date.now()/200)*4);
-            // Reset shadow so it doesn't affect later drawings (though nothing after this)
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-            
-            ctx.restore();
 
-            // Memory direction arrows
-            MEMORIES.forEach(m => {
-                if (!unlockedMemories.includes(m.id)) {
-                    if (m.x < camera.x || m.x > camera.x + width || m.y < camera.y || m.y > camera.y + height) {
-                        let a = Math.atan2(m.y-player.y, m.x-player.x);
-                        ctx.save(); ctx.translate(Math.max(40, Math.min(width-40, width/2 + Math.cos(a)*(width/2-40))), Math.max(40, Math.min(height-40, height/2 + Math.sin(a)*(height/2-40))));
-                        ctx.rotate(a); ctx.fillStyle = m.color + 'aa'; ctx.beginPath(); ctx.moveTo(15,0); ctx.lineTo(-10,10); ctx.lineTo(-10,-10); ctx.fill(); ctx.restore();
+            // Items
+            ctx.font = "30px Arial";
+            entities.chocs.forEach(c => ctx.fillText('🍫', c.x-15, c.y+10));
+            entities.gems.forEach(g => ctx.fillText('💜', g.x-15, g.y+10));
+            entities.stones.forEach(s => ctx.fillText('🔮', s.x-15, s.y+10));
+            entities.rings.forEach(r => ctx.fillText('💍', r.x-15, r.y+10));
+            if(entities.swordItem.active) ctx.fillText('🗡️', entities.swordItem.x-15, entities.swordItem.y+10);
+            
+            // Glowing Floating Memories (Ch1)
+            if(chapter === 1) {
+                entities.memories.forEach(m => {
+                    const unlocked = inventory.memories.includes(m.id);
+                    const dist = Math.hypot(player.x - m.x, player.y - m.y);
+                    const glowIntensity = Math.max(0.1, 1 - (dist / 400)); // Glows brighter as you approach
+                    
+                    const g = ctx.createRadialGradient(m.x, m.y, 0, m.x, m.y, unlocked ? 150 : 400 * glowIntensity);
+                    g.addColorStop(0, m.color + (unlocked ? '11' : '55')); g.addColorStop(1, 'transparent');
+                    
+                    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(m.x, m.y, 400, 0, Math.PI*2); ctx.fill();
+                    
+                    if(!unlocked) { 
+                        let floatY = Math.sin(Date.now()/300) * 15; // Floating effect
+                        ctx.fillStyle = m.color; ctx.beginPath(); ctx.arc(m.x, m.y + floatY, 20 + Math.sin(Date.now()/150)*8, 0, Math.PI*2); ctx.fill(); 
                     }
-                }
+                });
+            }
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Entities
+            if(entities.cat.active) { ctx.font = "50px Arial"; ctx.fillText(entities.cat.emoji, entities.cat.x-25, entities.cat.y+15); }
+            if(entities.stargate.active) { ctx.font = "80px Arial"; ctx.fillText(entities.stargate.emoji, entities.stargate.x-40, entities.stargate.y+25); }
+            
+            if(entities.boss.active) {
+                ctx.font = "80px Arial"; ctx.fillText(entities.boss.emoji, entities.boss.x-40, entities.boss.y+25);
+                ctx.fillStyle = 'red'; ctx.fillRect(entities.boss.x-40, entities.boss.y-60, 80, 8);
+                ctx.fillStyle = '#00ff00'; ctx.fillRect(entities.boss.x-40, entities.boss.y-60, (entities.boss.hp/entities.boss.maxHp)*80, 8);
+            }
+
+            entities.monsters.forEach(m => {
+                ctx.font = "50px Arial"; ctx.fillText(m.emoji, m.x-25, m.y+15);
+                ctx.font = "18px 'VT323'"; ctx.fillStyle = '#ff5555'; ctx.textAlign = "center"; ctx.fillText(m.name, m.x, m.y-40); ctx.textAlign = "left";
+                ctx.fillStyle = 'red'; ctx.fillRect(m.x-25, m.y-30, 50, 5); ctx.fillStyle = '#00ff00'; ctx.fillRect(m.x-25, m.y-30, (m.hp/m.maxHp)*50, 5);
             });
+
+            // Projectiles
+            ctx.fillStyle = '#ffffff'; ctx.font = "24px Arial";
+            entities.projectiles.forEach(p => ctx.fillText(p.type==='sword' ? '🗡️' : '✨', p.x-12, p.y+8));
+
+            // Player
+            ctx.shadowColor = 'rgba(255,255,255,0.8)'; ctx.shadowBlur = 15; ctx.font = "50px Arial"; 
+            ctx.fillText(player.emoji, player.x-25, player.y+15 + Math.sin(Date.now()/200)*4);
+            ctx.shadowBlur = 0;
+
+            // Draw Hint Arrows
+            let targetItem = null, arrowColor = '';
+            if(chapter === 1 && entities.chocs.length > 0) { targetItem = getNearest(entities.chocs); arrowColor = '#d4a373'; }
+            if(chapter === 2 && entities.gems.length > 0) { targetItem = getNearest(entities.gems); arrowColor = '#C026D3'; }
+            if(chapter === 2 && entities.stargate.active) { targetItem = entities.stargate; arrowColor = '#4facfe'; }
+            
+            if(targetItem) drawHintArrow(targetItem.x, targetItem.y, arrowColor);
+
+            ctx.restore();
         }
 
-        function triggerMemory(m) {
-            isModalOpen = true; unlockedMemories.push(m.id); updateUI();
-            document.getElementById('modal-icon').innerText = m.icon;
-            document.getElementById('modal-title').innerText = m.title; document.getElementById('modal-title').style.color = m.color;
-            document.getElementById('modal-text').innerText = m.text; document.getElementById('modal-whisper').innerText = m.whisper;
-            document.getElementById('memory-modal').classList.remove('hide');
+        function getNearest(arr) {
+            let n = null, d = Infinity;
+            arr.forEach(i => { let cd = Math.hypot(player.x - i.x, player.y - i.y); if(cd < d) { d = cd; n = i; } });
+            return n;
         }
 
-        function closeModal() { document.getElementById('memory-modal').classList.add('hide'); player.cooldown = 1.5; lastTime = performance.now(); isModalOpen = false; checkWin(); }
+        function drawHintArrow(tx, ty, color) {
+            let angle = Math.atan2(ty - player.y, tx - player.x);
+            let dist = Math.hypot(tx - player.x, ty - player.y);
+            ctx.save();
+            if(dist > Math.max(width, height)/2) {
+                // Offscreen - edge clamp
+                let ex = player.x + Math.cos(angle) * (width/2 - 50);
+                let ey = player.y + Math.sin(angle) * (height/2 - 50);
+                ctx.translate(ex, ey);
+            } else {
+                // Onscreen - bob above item
+                ctx.translate(tx, ty - 40 + Math.sin(Date.now()/150)*10);
+                angle = Math.PI/2; // Point down
+            }
+            ctx.rotate(angle); ctx.fillStyle = color; ctx.beginPath();
+            ctx.moveTo(15,0); ctx.lineTo(-10,15); ctx.lineTo(-10,-15); ctx.fill(); ctx.restore();
+        }
 
-        function checkWin() { if (unlockedMemories.length === 7 && bossDefeated && !finalTriggered) { finalTriggered = true; isModalOpen = true; document.getElementById('final-screen').classList.remove('hide'); generateConfetti(); } }
+        // --- MODALS & EVENTS ---
+        function closeMemory() { document.getElementById('memory-modal').classList.add('hide'); isModalOpen = false; }
+        function spawnBoss() { entities.boss.active = true; entities.boss.x = player.x + 800; entities.boss.y = player.y; entities.boss.hp = 10; showToast("The Memoire Master Approaches! 🎓"); }
+        
+        function openCatQuestion() { 
+            if(flags.catAnswered) return;
+            isModalOpen = true; resetJoystick();
+            document.getElementById('question-overlay').classList.remove('hide'); 
+            // Mobile safe focus
+            setTimeout(() => { document.getElementById('dream-car-input').focus(); }, 150);
+        }
+        function checkPuzzleAnswer() {
+            let v = document.getElementById('dream-car-input').value.toLowerCase().trim();
+            if(v === 'porsche') {
+                document.getElementById('question-overlay').classList.add('hide'); isModalOpen = false; flags.catAnswered = true; entities.cat.active = false;
+                entities.stargate.active = true; showToast(LANG[currentLang].toast_porsche); setTimeout(() => showToast(LANG[currentLang].toast_gate), 2000);
+            } else { showToast(LANG[currentLang].toast_wrong); }
+        }
 
-        function restartGame() { window.location.reload(); }
+        function completeChapter() {
+            isModalOpen = true; resetJoystick();
+            let l = LANG[currentLang];
+            let msg = l.ch1 + " Complete!";
+            if(chapter === 2) msg = l.ch2 + " Complete!";
+            if(chapter === 3) msg = l.ch3 + " Complete!";
+            if(chapter === 4) msg = l.ch4 + " Complete!";
+            
+            document.getElementById('chapter-complete-title').innerText = msg;
+            document.getElementById('chapter-complete-text').innerText = "You've unlocked the next piece of our journey.";
+            document.getElementById('chapter-complete').classList.remove('hide');
+        }
 
-        function playerShoot() { if(!hasWand) return; projectiles.push({ x: player.x, y: player.y, vx: player.faceX*600, vy: player.faceY*600, life: 1.5 }); }
+        function nextChapter() {
+            chapter++; document.getElementById('chapter-complete').classList.add('hide'); isModalOpen = false; generateLevelItems(); updateUI(); saveGame(); player.x = 1500; player.y = 1500; camera.x = 1500 - width/2; camera.y = 1500 - height/2;
+        }
 
-        function spawnBoss() { boss.active = true; boss.hp = 10; boss.x = player.x + 800; boss.y = player.y; showToast("The Memoire Master Approaches! 🎓"); }
-
-        function updateUI() { document.getElementById('ui-score').innerText = `${unlockedMemories.length}/7`; document.getElementById('ui-choc').innerText = `${chocolatesCollected}/12`; }
-
-        function showToast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.opacity = '1'; setTimeout(() => t.style.opacity = '0', 3000); }
-
-        function toggleAudio() { const b = document.getElementById('bgm'); audioPlaying ? b.pause() : b.play(); audioPlaying = !audioPlaying; document.getElementById('audio-btn').innerText = audioPlaying ? "🎵 BGM: ON" : "🎵 BGM: OFF"; }
-
-        function generateConfetti() {
-            const c = document.getElementById('confetti-container');
-            for(let i=0; i<100; i++) {
-                const d = document.createElement('div'); d.innerText = '💜'; d.style.position = 'absolute'; d.style.left = Math.random()*100+'vw'; d.style.top = '100vh';
-                d.style.animation = `floatUpConfetti ${Math.random()*3+2}s linear infinite`; c.appendChild(d);
+        // Final Win Sequence (Gallery -> Letter)
+        function checkFinalWin() {
+            if(inventory.rings >= 3 && entities.monsters.length === 0 && chapter === 5) {
+                isModalOpen = true; resetJoystick();
+                triggerConfetti();
+                document.getElementById('final-gallery').classList.remove('hide');
             }
         }
 
-        function tapPapa() { papaTaps++; if(papaTaps >= 25) { showToast("Extra real-life cuddles unlocked! 💜"); papaTaps = 0; } }
+        function showApologyLetter() {
+            document.getElementById('final-gallery').classList.add('hide');
+            document.getElementById('apology-letter').classList.remove('hide');
+        }
+
+        // --- SIMPLE CONFETTI ---
+        function triggerConfetti() {
+            const cc = document.getElementById('confettiCanvas');
+            cc.classList.remove('hide'); cc.width = window.innerWidth; cc.height = window.innerHeight;
+            const cctx = cc.getContext('2d');
+            let particles = [];
+            for(let i=0; i<150; i++) particles.push({x: Math.random()*cc.width, y: Math.random()*cc.height-cc.height, r: Math.random()*6+2, d: Math.random()*25, color: ['#C026D3', '#E0BBFF', '#4facfe', '#ffb3c6', 'gold'][Math.floor(Math.random()*5)], tilt: Math.floor(Math.random()*10)-10, tiltAngleInc: (0.07 * Math.random()) + 0.05, tiltAngle: 0});
+            let angle = 0;
+            function drawConfetti() {
+                requestAnimationFrame(drawConfetti);
+                cctx.clearRect(0, 0, cc.width, cc.height);
+                angle += 0.01;
+                for(let i=0; i<150; i++) {
+                    let p = particles[i]; p.tiltAngle += p.tiltAngleInc; p.y += (Math.cos(angle+p.d) + 1 + p.r/2)/2; p.x += Math.sin(angle);
+                    cctx.beginPath(); cctx.lineWidth = p.r; cctx.strokeStyle = p.color; cctx.moveTo(p.x + p.tilt + p.r, p.y); cctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r); cctx.stroke();
+                    if(p.y > cc.height) { p.x = Math.random()*cc.width; p.y = -10; p.tilt = Math.floor(Math.random()*10)-10; }
+                }
+            }
+            drawConfetti();
+        }
     </script>
 </body>
 </html>
